@@ -1,0 +1,222 @@
+---
+title: "clinical data practice"
+output: 
+ html_document:
+   theme: lumen
+knit: (function(inputFile, encoding) {
+  rmarkdown::render(inputFile, encoding = encoding, output_dir = "../output/") })
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+> This practice works on a dataset of the following research:    
+> doi:10.1016/j.nutres.2018.12.004    
+
+
+This research tested the effect of ingesting encapsulated lipid beads on subsequent food intake of overweight adults. The experiment adopted a randomized placebo-controlled crossover design.   
+
+|        Two groups of adults were treated with either yogurt containing encapsulated lipid beads (**active group**) 
+|        or yogurt with non-encapsulated nutrient (**placebo/control group**) 
+|        before an ad libitum pasta meal. After a week of washout period, 
+|        each of the two subject groups was treated with one of the other experimental treatment. 
+|        The experiment data can be found on [Mendeley Data]("https://data.mendeley.com/datasets/hxyx3vdf3b/1").    
+
+### Load cleaned datasets
+```{r results="hide", message=FALSE}
+source ("./clinical_data_practice.R")
+```
+
+### Overview of datasets    
+The first dataset is about subject description and food intake. The calories of pasta taken by the subjects were recorded after each treatment. Each subject experienced 2 treatments, in different order, across 2 time points. Therefore, each subject generated 2 data points, the calories taken after an active treatment (**activeIntake_kcal**), and those after a control treatment (**controlIntake_kcal**).  
+```{r collapse=TRUE}
+str (dat1)
+```
+
+The second dataset contains measurements of subject satiaty and GI symptoms
+```{r collapse=TRUE}
+str (dat2)
+```
+    
+### First research question: do subjects treated with encapsulated lipid beads consume less food than subjects treated with non-encapsulated beads?    
+    
+Paired-t test was used to comapare controlIntake_kcal and activeIntake_kcal    
+```{r}
+ttest <- t.test (x = dat1$controlIntake_kcal, y = dat1$activeIntake_kcal, paired = TRUE)
+
+ttest$p.value
+```
+
+##### The answer is yes. Subjects' consumption is significantly lower in active treatment than that in control treatment.
+```{r fig.height=4, fig.width=4}
+library (ggplot2)
+dat1p <- dat1 %>% 
+  select (controlIntake_kcal, activeIntake_kcal) %>% 
+  gather (key = key, value = value) %>% 
+  group_by (key) %>% 
+  summarise (mean = mean(value),
+             sem = sd(value)/sqrt(length(value)))
+
+ggplot (dat1p, aes (x = key, y = mean, fill = key)) +
+  geom_bar (stat = "identity", width = 1, position ="dodge", aes (color = key, fill = key)) +
+  geom_linerange (aes (ymin = mean - sem, ymax = mean + sem)) +
+  scale_color_manual (values = c ("activeIntake_kcal" = "black", "controlIntake_kcal" = "grey50")) +
+  scale_fill_manual (values = c ("activeIntake_kcal" = "black", "controlIntake_kcal" = "grey90")) +
+  scale_x_discrete(expand = c(0.6,0.6), labels = c ("activeIntake_kcal" = "Active", "controlIntake_kcal" = "Cnotrol")) +
+  scale_y_continuous (limits = c(0, 1000)) +
+  labs (x = "", y = "Food intake (kcal)") +
+  theme_classic () +
+  theme (legend.position = "none")
+```
+
+### The second question asks whether subjects in active treatment have more desire to eat than in control treatment.
+```{r fig.height = 8, fig.width=6}
+dat2p <- dat2 %>% 
+  select (Time,
+          `Satiety-active`, `Satiety-control`, "Fullness-active", "Fullness-control", 
+          "Hunger-active", "Hunger-control", `Desire.to.eat-active`, `Desire.to.eat-control`, 
+          `Desire.to.snack-active`, `Desire.to.snack-control`) %>% 
+  filter (Time >= 90) %>% 
+  gather (key, value, -Time) %>% 
+  separate(key, c("var", "group"), "-") %>% 
+  group_by(var, group, Time) %>% 
+  summarize (mean = mean (value),
+             sem = sd(value)/sqrt(length(value)))
+
+multiPlot <- function (data, title){
+  
+  ggplot (data, aes (x = Time, y = mean, group = group)) +
+    geom_linerange (aes (ymin = mean - sem, ymax = mean + sem)) +
+    geom_line (aes (color = group)) +
+    geom_point (shape = 21, aes (color = group, fill = group)) +
+    scale_color_manual(values = c("active" = "black", "control" = "grey"))+
+    scale_fill_manual (values = c("active" = "black", "control" = "white")) +
+    labs (x = "Time (min)", y = "VAS score (mm)") +
+    scale_y_continuous(limits = c(0,100)) +
+    ggtitle (title) +
+    theme_classic()+
+    theme(legend.position='none', 
+          plot.title = element_text(hjust = 0.05, vjust = -8)) 
+
+  }
+#multiPlot ("Satiety", "A")
+A <- multiPlot (dat2p %>% filter (var == "Satiety"), "A")
+B <- multiPlot (dat2p %>% filter (var == "Fullness"), "B")
+C <- multiPlot (dat2p %>% filter (var == "Hunger"), "C")
+D <- multiPlot (dat2p %>% filter (var == "Desire.to.eat"), "D") 
+E <- multiPlot (dat2p %>% filter (var == "Desire.to.snack"), "E")
+
+library (gridExtra)
+grid.arrange (A,B,C,D,E)
+```
+
+```{r fig.width = 5, fig.height = 4}
+library (pracma)
+datAUC <- dat2 %>%
+  select (ID, Time,
+          `Satiety-active`, `Satiety-control`, "Fullness-active", "Fullness-control", 
+          "Hunger-active", "Hunger-control", `Desire.to.eat-active`, `Desire.to.eat-control`, 
+          `Desire.to.snack-active`, `Desire.to.snack-control`) %>% 
+  filter (Time >= 90) %>% 
+  gather (key, value, -ID, -Time) %>% 
+  separate (key, c("var", "group"), "-") %>% 
+  group_by (ID, var, group) %>% 
+  summarize (auc = trapz (Time, value))
+
+dat3p <- datAUC %>% 
+  group_by(var, group) %>% 
+  summarize (mean = mean (auc),
+             sem = sd(auc)/sqrt (length(auc)))
+
+
+level_order <- factor (dat3p$var, levels = c("Satiety", "Hunger", "Desire.to.eat", "Desire.to.snack", "Fullness"))
+
+ggplot (dat3p, aes (x = level_order, y = mean, group = group, fill = group)) +
+  geom_linerange (position = position_dodge(width = 0.7),aes (ymin = mean - sem, ymax = mean + sem)) +
+  geom_bar (stat = "identity", position = position_dodge(), aes(color = group)) +
+  scale_color_manual (values = c("black", "grey50")) +
+  scale_fill_manual (values = c("black", "grey90")) +
+  scale_x_discrete (labels = c ("Satiety", "Hunger", "Desire \nto eat", "Desire \nto snack", "Fullness")) +
+  scale_y_continuous(limits = c(0,6000), breaks = c (1000, 2000, 3000, 4000, 5000, 6000), labels = c ("", 2000, "", 4000, "", 6000)) +
+  labs (x = "", y = "AUC VAS (mm.min)") +
+  theme_classic()
+```
+
+```{r results="hold"}
+datAUC <- datAUC %>% 
+  spread (group, auc) %>% 
+  arrange (desc(var))
+
+t.test (x = datAUC$control [which (datAUC$var == "Satiety")], y = datAUC$active [which (datAUC$var == "Satiety")], paired = TRUE)
+
+t.test (x = datAUC$control [which (datAUC$var == "Hunger")], y = datAUC$active [which (datAUC$var == "Hunger")], paired = TRUE)
+
+t.test (x = datAUC$control [which (datAUC$var == "Desire.to.eat")], y = datAUC$active [which (datAUC$var == "Desire.to.eat")], paired = TRUE)
+
+t.test (x = datAUC$control [which (datAUC$var == "Desire.to.snack")], y = datAUC$active [which (datAUC$var == "Desire.to.snack")], paired = TRUE)
+
+t.test (x = datAUC$control [which (datAUC$var == "Fullness")], y = datAUC$active [which (datAUC$var == "Fullness")], paired = TRUE)
+```
+##### No, the levels of satiety, hunger, desire to eat, desire to snack, or fullness did not differ significantly between treatments    
+    
+```{r fig.height=6, fig.width=6}
+datAUC <- dat2 %>%
+  select (ID, Time,
+          `Satiety-active`, `Satiety-control`, "Fullness-active", "Fullness-control", 
+          "Hunger-active", "Hunger-control", `Desire.to.eat-active`, `Desire.to.eat-control`, 
+          `Desire.to.snack-active`, `Desire.to.snack-control`) %>% 
+  filter (Time >= 90) %>% 
+  gather (key, value, -ID, -Time) %>% 
+  separate (key, c("var", "group"), "-") %>% 
+  group_by (ID, var, group) %>% 
+  summarize (auc = trapz (Time, value))
+
+
+dat4p <- dat2 %>% 
+  select (Time, 
+          `Bloating-active`, `Bloating-control`,
+          `Discomfort-active`, `Discomfort-control`,
+          `Pain-active`, `Pain-control`,
+          `Nausea-active`, `Nausea-control`) %>% 
+  filter (Time >= 90) %>% 
+  gather (key, value, -Time) %>% 
+  separate(key, c("var", "group"), "-") %>% 
+  group_by(var, group, Time) %>% 
+  summarize (mean = mean (value),
+             sem = sd(value)/sqrt(length(value)))
+
+A <- multiPlot (dat4p %>% filter (var == "Bloating"), "A")
+B <- multiPlot (dat4p %>% filter (var == "Discomfort"), "B")
+C <- multiPlot (dat4p %>% filter (var == "Pain"), "C")
+D <- multiPlot (dat4p %>% filter (var == "Nausea"), "D") 
+
+grid.arrange(A,B,C,D)
+```
+
+```{r results="hold"}
+datAUC <- dat2 %>% 
+   select (ID, Time, 
+          `Bloating-active`, `Bloating-control`,
+          `Discomfort-active`, `Discomfort-control`,
+          `Pain-active`, `Pain-control`,
+          `Nausea-active`, `Nausea-control`) %>% 
+  filter (Time >= 90) %>% 
+  gather (key, value, -ID, -Time) %>% 
+  separate (key, c("var", "group"), "-") %>% 
+  group_by (ID, var, group) %>% 
+  summarize (auc = trapz (Time, value)) %>% 
+  spread (group, auc) %>% 
+  arrange (var)
+
+wilcox.test (x = datAUC$control [which (datAUC$var == "Bloating")], y = datAUC$active [which (datAUC$var == "Bloating")], paired = TRUE)
+
+wilcox.test (x = datAUC$control [which (datAUC$var == "Discomfort")], y = datAUC$active [which (datAUC$var == "Discomfort")], paired = TRUE)
+
+wilcox.test (x = datAUC$control [which (datAUC$var == "Pain")], y = datAUC$active [which (datAUC$var == "Pain")], paired = TRUE)
+
+wilcox.test (x = datAUC$control [which (datAUC$var == "Nausea")], y = datAUC$active [which (datAUC$var == "Nausea")], paired = TRUE)
+
+```
+    
+##### None of the GI symptoms differed significantly between groups    
