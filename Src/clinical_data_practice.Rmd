@@ -12,16 +12,18 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 ```
 
 > This practice works on a dataset of the following research:    
-> doi:10.1016/j.nutres.2018.12.004    
+> [doi:10.1016/j.nutres.2018.12.004](https://doi.org/10.1016/j.nutres.2018.12.004)    
 
 
 This research tested the effect of ingesting encapsulated lipid beads on subsequent food intake of overweight adults. The experiment adopted a randomized placebo-controlled crossover design.   
 
-|        Two groups of adults were treated with either yogurt containing encapsulated lipid beads (**active group**) 
-|        or yogurt with non-encapsulated nutrient (**placebo/control group**) 
-|        before an ad libitum pasta meal. After a week of washout period, 
-|        each of the two subject groups was treated with one of the other experimental treatment. 
-|        The experiment data can be found on [Mendeley Data]("https://data.mendeley.com/datasets/hxyx3vdf3b/1").    
+|        Two groups of adults were treated with either yogurt containing 
+|        encapsulated lipid beads (**active group**) or yogurt with 
+|        non-encapsulated nutrient (**placebo/control group**) before
+|        an ad libitum pasta meal. After a week of washout period, each
+|        of the two subject groups was treated with one of the other 
+|        experimental treatment. The experiment data can be found on 
+|        [Mendeley Data](https://data.mendeley.com/datasets/hxyx3vdf3b/1).    
 
 ### Load cleaned datasets
 ```{r results="hide", message=FALSE}
@@ -29,19 +31,19 @@ source ("./clinical_data_practice.R")
 ```
 
 ### Overview of datasets    
-The first dataset is about subject description and food intake. The calories of pasta taken by the subjects were recorded after each treatment. Each subject experienced 2 treatments, in different order, across 2 time points. Therefore, each subject generated 2 data points, the calories taken after an active treatment (**activeIntake_kcal**), and those after a control treatment (**controlIntake_kcal**).  
+##### The first dataset contains basic subject description and food consumption. The calories of pasta consumed by the subjects in each *ad libtum* session were recorded after each treatment. Each subject experienced 2 treatments, in different order, across 2 time points. Therefore, each subject generated 2 data points, the calories taken after an active treatment (**activeIntake_kcal**), and those after a control treatment (**controlIntake_kcal**).  
 ```{r collapse=TRUE}
 str (dat1)
 ```
 
-The second dataset contains measurements of subject satiaty and GI symptoms
+##### The second dataset contains measurements of subject satiaty and unpleasant GI symptoms
 ```{r collapse=TRUE}
 str (dat2)
 ```
     
 ### First research question: do subjects treated with encapsulated lipid beads consume less food than subjects treated with non-encapsulated beads?    
     
-Paired-t test was used to comapare controlIntake_kcal and activeIntake_kcal    
+##### Paired-t test was used to comapare controlIntake_kcal and activeIntake_kcal    
 ```{r}
 ttest <- t.test (x = dat1$controlIntake_kcal, y = dat1$activeIntake_kcal, paired = TRUE)
 
@@ -220,3 +222,6 @@ wilcox.test (x = datAUC$control [which (datAUC$var == "Nausea")], y = datAUC$act
 ```
     
 ##### None of the GI symptoms differed significantly between groups    
+    
+|
+|

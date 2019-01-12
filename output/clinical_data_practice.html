@@ -190,21 +190,23 @@ $(document).ready(function () {
 
 <blockquote>
 <p>This practice works on a dataset of the following research:<br />
-<a href="doi:10.1016/j.nutres.2018.12.004" class="uri">doi:10.1016/j.nutres.2018.12.004</a></p>
+<a href="https://doi.org/10.1016/j.nutres.2018.12.004">doi:10.1016/j.nutres.2018.12.004</a></p>
 </blockquote>
 <p>This research tested the effect of ingesting encapsulated lipid beads on subsequent food intake of overweight adults. The experiment adopted a randomized placebo-controlled crossover design.</p>
-<div style="white-space: pre-line;">       Two groups of adults were treated with either yogurt containing encapsulated lipid beads (<strong>active group</strong>)
-       or yogurt with non-encapsulated nutrient (<strong>placebo/control group</strong>)
-       before an ad libitum pasta meal. After a week of washout period,
-       each of the two subject groups was treated with one of the other experimental treatment.
-       The experiment data can be found on <a href="%22https://data.mendeley.com/datasets/hxyx3vdf3b/1%22">Mendeley Data</a>.</div>
+<div style="white-space: pre-line;">       Two groups of adults were treated with either yogurt containing
+       encapsulated lipid beads (<strong>active group</strong>) or yogurt with
+       non-encapsulated nutrient (<strong>placebo/control group</strong>) before
+       an ad libitum pasta meal. After a week of washout period, each
+       of the two subject groups was treated with one of the other
+       experimental treatment. The experiment data can be found on <a href="%22https://data.mendeley.com/datasets/hxyx3vdf3b/1%22">Mendeley Data</a>.</div>
 <div id="load-cleaned-datasets" class="section level3">
 <h3>Load cleaned datasets</h3>
 <pre class="r"><code>source (&quot;./clinical_data_practice.R&quot;)</code></pre>
 </div>
 <div id="overview-of-datasets" class="section level3">
 <h3>Overview of datasets</h3>
-<p>The first dataset is about subject description and food intake. The calories of pasta taken by the subjects were recorded after each treatment. Each subject experienced 2 treatments, in different order, across 2 time points. Therefore, each subject generated 2 data points, the calories taken after an active treatment (<strong>activeIntake_kcal</strong>), and those after a control treatment (<strong>controlIntake_kcal</strong>).</p>
+<div id="the-first-dataset-is-about-subject-description-and-food-intake.-the-calories-of-pasta-taken-by-the-subjects-were-recorded-after-each-treatment.-each-subject-experienced-2-treatments-in-different-order-across-2-time-points.-therefore-each-subject-generated-2-data-points-the-calories-taken-after-an-active-treatment-activeintake_kcal-and-those-after-a-control-treatment-controlintake_kcal." class="section level5">
+<h5>The first dataset is about subject description and food intake. The calories of pasta taken by the subjects were recorded after each treatment. Each subject experienced 2 treatments, in different order, across 2 time points. Therefore, each subject generated 2 data points, the calories taken after an active treatment (<strong>activeIntake_kcal</strong>), and those after a control treatment (<strong>controlIntake_kcal</strong>).</h5>
 <pre class="r"><code>str (dat1)
 ## 'data.frame':    33 obs. of  11 variables:
 ##  $ id                : chr  &quot;LE01&quot; &quot;LE02&quot; &quot;LE03&quot; &quot;LE04&quot; ...
@@ -218,7 +220,9 @@ $(document).ready(function () {
 ##  $ first_intervention: num  1 2 2 1 2 1 1 2 2 1 ...
 ##  $ activeIntake_kcal : num  489 642 481 885 699 ...
 ##  $ controlIntake_kcal: num  505 701 528 938 803 ...</code></pre>
-<p>The second dataset contains measurements of subject satiaty and GI symptoms</p>
+</div>
+<div id="the-second-dataset-contains-measurements-of-subject-satiaty-and-gi-symptoms" class="section level5">
+<h5>The second dataset contains measurements of subject satiaty and GI symptoms</h5>
 <pre class="r"><code>str (dat2)
 ## 'data.frame':    395 obs. of  20 variables:
 ##  $ ID                     : chr  &quot;LE1&quot; &quot;LE1&quot; &quot;LE1&quot; &quot;LE1&quot; ...
@@ -242,13 +246,16 @@ $(document).ready(function () {
 ##  $ Pain-control           : num  0 0 0 0 0.5 0 0.5 0 0.5 0 ...
 ##  $ Nausea-control         : num  0 0 0 0 0 0 0.5 0 0 0 ...</code></pre>
 </div>
+</div>
 <div id="first-research-question-do-subjects-treated-with-encapsulated-lipid-beads-consume-less-food-than-subjects-treated-with-non-encapsulated-beads" class="section level3">
 <h3>First research question: do subjects treated with encapsulated lipid beads consume less food than subjects treated with non-encapsulated beads?</h3>
-<p>Paired-t test was used to comapare controlIntake_kcal and activeIntake_kcal</p>
+<div id="paired-t-test-was-used-to-comapare-controlintake_kcal-and-activeintake_kcal" class="section level5">
+<h5>Paired-t test was used to comapare controlIntake_kcal and activeIntake_kcal</h5>
 <pre class="r"><code>ttest &lt;- t.test (x = dat1$controlIntake_kcal, y = dat1$activeIntake_kcal, paired = TRUE)
 
 ttest$p.value</code></pre>
 <pre><code>## [1] 0.01615907</code></pre>
+</div>
 <div id="the-answer-is-yes.-subjects-consumption-is-significantly-lower-in-active-treatment-than-that-in-control-treatment." class="section level5">
 <h5>The answer is yes. Subjects’ consumption is significantly lower in active treatment than that in control treatment.</h5>
 <pre class="r"><code>library (ggplot2)
@@ -499,6 +506,8 @@ wilcox.test (x = datAUC$control [which (datAUC$var == &quot;Nausea&quot;)], y = 
 </div>
 <div id="none-of-the-gi-symptoms-differed-significantly-between-groups" class="section level5">
 <h5>None of the GI symptoms differed significantly between groups</h5>
+<div style="white-space: pre-line;">
+</div>
 </div>
 </div>
 
