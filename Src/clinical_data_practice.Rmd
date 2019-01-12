@@ -20,7 +20,7 @@ This research tested the effect of ingesting encapsulated lipid beads on subsequ
 |        Two groups of adults were treated with either yogurt containing 
 |        encapsulated lipid beads (**active group**) or yogurt with 
 |        non-encapsulated nutrient (**placebo/control group**) before
-|        an ad libitum pasta meal. After a week of washout period, each
+|        an *ad libitum* pasta meal. After a week of washout period, each
 |        of the two subject groups was treated with one of the other 
 |        experimental treatment. The experiment data can be found on 
 |        [Mendeley Data](https://data.mendeley.com/datasets/hxyx3vdf3b/1).    
