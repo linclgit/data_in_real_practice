@@ -196,17 +196,18 @@ $(document).ready(function () {
 <div style="white-space: pre-line;">       Two groups of adults were treated with either yogurt containing
        encapsulated lipid beads (<strong>active group</strong>) or yogurt with
        non-encapsulated nutrient (<strong>placebo/control group</strong>) before
-       an ad libitum pasta meal. After a week of washout period, each
+       an <em>ad libitum</em> pasta meal. After a week of washout period, each
        of the two subject groups was treated with one of the other
-       experimental treatment. The experiment data can be found on <a href="%22https://data.mendeley.com/datasets/hxyx3vdf3b/1%22">Mendeley Data</a>.</div>
+       experimental treatment. The experiment data can be found on
+       <a href="https://data.mendeley.com/datasets/hxyx3vdf3b/1">Mendeley Data</a>.</div>
 <div id="load-cleaned-datasets" class="section level3">
 <h3>Load cleaned datasets</h3>
 <pre class="r"><code>source (&quot;./clinical_data_practice.R&quot;)</code></pre>
 </div>
 <div id="overview-of-datasets" class="section level3">
 <h3>Overview of datasets</h3>
-<div id="the-first-dataset-is-about-subject-description-and-food-intake.-the-calories-of-pasta-taken-by-the-subjects-were-recorded-after-each-treatment.-each-subject-experienced-2-treatments-in-different-order-across-2-time-points.-therefore-each-subject-generated-2-data-points-the-calories-taken-after-an-active-treatment-activeintake_kcal-and-those-after-a-control-treatment-controlintake_kcal." class="section level5">
-<h5>The first dataset is about subject description and food intake. The calories of pasta taken by the subjects were recorded after each treatment. Each subject experienced 2 treatments, in different order, across 2 time points. Therefore, each subject generated 2 data points, the calories taken after an active treatment (<strong>activeIntake_kcal</strong>), and those after a control treatment (<strong>controlIntake_kcal</strong>).</h5>
+<div id="the-first-dataset-contains-basic-subject-description-and-food-consumption.-the-calories-of-pasta-consumed-by-the-subjects-in-each-ad-libtum-session-were-recorded-after-each-treatment.-each-subject-experienced-2-treatments-in-different-order-across-2-time-points.-therefore-each-subject-generated-2-data-points-the-calories-taken-after-an-active-treatment-activeintake_kcal-and-those-after-a-control-treatment-controlintake_kcal." class="section level5">
+<h5>The first dataset contains basic subject description and food consumption. The calories of pasta consumed by the subjects in each <em>ad libtum</em> session were recorded after each treatment. Each subject experienced 2 treatments, in different order, across 2 time points. Therefore, each subject generated 2 data points, the calories taken after an active treatment (<strong>activeIntake_kcal</strong>), and those after a control treatment (<strong>controlIntake_kcal</strong>).</h5>
 <pre class="r"><code>str (dat1)
 ## 'data.frame':    33 obs. of  11 variables:
 ##  $ id                : chr  &quot;LE01&quot; &quot;LE02&quot; &quot;LE03&quot; &quot;LE04&quot; ...
@@ -221,8 +222,8 @@ $(document).ready(function () {
 ##  $ activeIntake_kcal : num  489 642 481 885 699 ...
 ##  $ controlIntake_kcal: num  505 701 528 938 803 ...</code></pre>
 </div>
-<div id="the-second-dataset-contains-measurements-of-subject-satiaty-and-gi-symptoms" class="section level5">
-<h5>The second dataset contains measurements of subject satiaty and GI symptoms</h5>
+<div id="the-second-dataset-contains-measurements-of-subject-satiaty-and-unpleasant-gi-symptoms" class="section level5">
+<h5>The second dataset contains measurements of subject satiaty and unpleasant GI symptoms</h5>
 <pre class="r"><code>str (dat2)
 ## 'data.frame':    395 obs. of  20 variables:
 ##  $ ID                     : chr  &quot;LE1&quot; &quot;LE1&quot; &quot;LE1&quot; &quot;LE1&quot; ...
