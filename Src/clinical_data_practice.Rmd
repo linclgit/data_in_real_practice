@@ -113,7 +113,7 @@ library (gridExtra)
 grid.arrange (A,B,C,D,E)
 ```
 
-```{r fig.width = 5, fig.height = 4}
+```{r fig.width = 5, fig.height = 4, fig.path = "../images/"}
 library (pracma)
 datAUC <- dat2 %>%
   select (ID, Time,

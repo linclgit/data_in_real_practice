@@ -424,19 +424,7 @@ t.test (x = datAUC$control [which (datAUC$var == &quot;Fullness&quot;)], y = dat
 ##               -121.8182</code></pre>
 <div id="no-the-levels-of-satiety-hunger-desire-to-eat-desire-to-snack-or-fullness-did-not-differ-significantly-between-treatments" class="section level5">
 <h5>No, the levels of satiety, hunger, desire to eat, desire to snack, or fullness did not differ significantly between treatments</h5>
-<pre class="r"><code>datAUC &lt;- dat2 %&gt;%
-  select (ID, Time,
-          `Satiety-active`, `Satiety-control`, &quot;Fullness-active&quot;, &quot;Fullness-control&quot;, 
-          &quot;Hunger-active&quot;, &quot;Hunger-control&quot;, `Desire.to.eat-active`, `Desire.to.eat-control`, 
-          `Desire.to.snack-active`, `Desire.to.snack-control`) %&gt;% 
-  filter (Time &gt;= 90) %&gt;% 
-  gather (key, value, -ID, -Time) %&gt;% 
-  separate (key, c(&quot;var&quot;, &quot;group&quot;), &quot;-&quot;) %&gt;% 
-  group_by (ID, var, group) %&gt;% 
-  summarize (auc = trapz (Time, value))
-
-
-dat4p &lt;- dat2 %&gt;% 
+<pre class="r"><code>dat4p &lt;- dat2 %&gt;% 
   select (Time, 
           `Bloating-active`, `Bloating-control`,
           `Discomfort-active`, `Discomfort-control`,
@@ -508,6 +496,8 @@ wilcox.test (x = datAUC$control [which (datAUC$var == &quot;Nausea&quot;)], y = 
 <div id="none-of-the-gi-symptoms-differed-significantly-between-groups" class="section level5">
 <h5>None of the GI symptoms differed significantly between groups</h5>
 <div style="white-space: pre-line;">
+
+
 </div>
 </div>
 </div>
