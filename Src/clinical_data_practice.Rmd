@@ -163,18 +163,6 @@ t.test (x = datAUC$control [which (datAUC$var == "Fullness")], y = datAUC$active
 ##### No, the levels of satiety, hunger, desire to eat, desire to snack, or fullness did not differ significantly between treatments    
     
 ```{r fig.height=6, fig.width=6}
-datAUC <- dat2 %>%
-  select (ID, Time,
-          `Satiety-active`, `Satiety-control`, "Fullness-active", "Fullness-control", 
-          "Hunger-active", "Hunger-control", `Desire.to.eat-active`, `Desire.to.eat-control`, 
-          `Desire.to.snack-active`, `Desire.to.snack-control`) %>% 
-  filter (Time >= 90) %>% 
-  gather (key, value, -ID, -Time) %>% 
-  separate (key, c("var", "group"), "-") %>% 
-  group_by (ID, var, group) %>% 
-  summarize (auc = trapz (Time, value))
-
-
 dat4p <- dat2 %>% 
   select (Time, 
           `Bloating-active`, `Bloating-control`,
@@ -223,5 +211,7 @@ wilcox.test (x = datAUC$control [which (datAUC$var == "Nausea")], y = datAUC$act
     
 ##### None of the GI symptoms differed significantly between groups    
     
-|
-|
+|    
+|    
+|    
+|    

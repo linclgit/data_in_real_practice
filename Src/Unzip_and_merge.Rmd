@@ -1,0 +1,101 @@
+---
+date: 2018/1/23
+output: rmarkdown::github_document
+knit: (function(inputFile, encoding) {
+  rmarkdown::render(inputFile, encoding = encoding, output_dir = "../output/") })
+---
+
+```{r, echo = FALSE}
+knitr::opts_chunk$set (collapse=TRUE, comment="##", fig.path = "../images/")
+```
+  
+> - unzip a folder containing a list of split data files  
+> - read and merge individual files into one single data frame  
+> - some exploratory analysis and visualizations  
+  
+data used: [Baby Names from Social Security Card Applications](https://catalog.data.gov/dataset/baby-names-from-social-security-card-applications-data-by-state-and-district-of-)  
+  
+code reference: [HERE](https://stat.ethz.ch/pipermail/r-help/2010-October/255593.html)  [HERE](https://stackoverflow.com/a/35236167)
+
+***
+
+```{r message=FALSE, warning=FALSE}
+library (tidyverse); library (knitr); library (kableExtra) # Load the package
+```
+  
+### Take a look at the folder containing the zip file
+```{r}
+list.files ("../data")
+```
+### Extract files from a zip archive and place them in a new folder
+```{r}
+path <- "../data/namesbystate/" 
+unzip (zipfile = "./data/namesbystate.zip", # file to unzip
+       exdir = path) # folder to deposit the files
+```
+
+### Now take a look at the folders
+```{r echo=TRUE}
+list.files ("../data")
+list.files (path) # the one we just created
+```
+Note that the files are separated by states, and there is one pdf file in the folder, which we don't want  
+
+### Files are ready. Prepare to read the files.
+```{r}
+files <- paste0 (path, list.files (path)) # produce a path for each file
+files <- files [grep ("*TXT", files)] # Keep only the text files we want
+head (read.table (files [1], sep = ",")) # without header
+```
+
+### Read through the file list and merge into one single data frame
+```{r}
+df <- do.call ("rbind", 
+               lapply (files, read.table, sep = ",")) %>% 
+  # rbindlist (lapply (files, read.table, sep = ",")) 
+  # works as well
+  as_tibble %>% # turn the table into tbl_df
+  print
+
+table (df$V1) # check if all states are in
+ 
+header <- c ("state", "sex", "year", "name", "occurrence") # column names
+names (df) <- header
+df 
+```
+
+### Some exploratory analysis
+```{r}
+popular_names <- df %>% 
+  group_by (state, sex, year) %>% 
+  filter (occurrence == max (occurrence)) %>% 
+  group_by (sex, year) %>% 
+  summarize (name = names (which.max (table (name))))
+  # get the most popular name of the year
+  
+popular_names %>% # print table
+  spread (sex, name) %>% 
+  kable (format = "markdown") %>% 
+  print
+```
+
+### Use heatmap concept in ggplot2 to show time series changes
+```{r, fig.width=10}
+library (ggplot2)
+ggplot (popular_names %>% filter (sex == "F"), 
+       aes (x = year, y = reorder (name, -year), fill = name)) + 
+  # reorder names according to their order of appearance (ascending year)
+  # specify colors by names
+  geom_tile () +
+  labs (y = "most popular female names") +
+  scale_x_continuous (breaks = seq (min (popular_names$year), max (popular_names$year), by = 10)) +
+  theme (legend.position = "none") # remove legend
+
+ggplot (popular_names %>% filter (sex == "M"), 
+       aes (x = year, y = reorder (name, -year), fill = name)) +
+  geom_tile () +
+  labs (y = "most popular male names") +
+    scale_x_continuous (breaks = seq (min (popular_names$year), max (popular_names$year), by = 10)) +
+  theme (legend.position = "none")
+```
+
