@@ -1,4 +1,4 @@
-![image](/images/unnamed-chunk-9-1.png =100x)    
+![image](./images/unnamed-chunk-9-1.png =100x100)    
 [Practice to unzip files and merge extracted data](https://linclgit.github.io/data_in_real_practice/output/Unzip_and_merge.md)    
 
 ![image](https://linclgit.github.io/data_in_real_practice/images/unnamed-chunk-7-1.png)
