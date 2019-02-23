@@ -20,9 +20,15 @@ code reference: [HERE](https://stat.ethz.ch/pipermail/r-help/2010-October/255593
 ***
 
 ```{r message=FALSE, warning=FALSE}
-library (tidyverse); library (knitr); library (kableExtra) # Load the package
+library (tidyverse); library (knitr); library (kableExtra) # Load the packages
 ```
   
+### Start from downloading the zipped file
+```{r}
+url <- "https://www.ssa.gov/oact/babynames/state/namesbystate.zip"
+download.file(url, destfile = "../data/namesbystate.zip")
+```
+
 ### Take a look at the folder containing the zip file
 ```{r}
 list.files ("../data")
@@ -30,7 +36,7 @@ list.files ("../data")
 ### Extract files from a zip archive and place them in a new folder
 ```{r}
 path <- "../data/namesbystate/" 
-unzip (zipfile = "./data/namesbystate.zip", # file to unzip
+unzip (zipfile = "../data/namesbystate.zip", # file to unzip
        exdir = path) # folder to deposit the files
 ```
 
@@ -109,4 +115,6 @@ ggplot (popular_names %>% filter (sex == "M"),
 1. Over the past century, the most popular female names have changed 10 times, whereas male names changed only 7 times, suggesting parents look for new names more frequently for baby girls than for boys.    
 2. After the top position of the list was replaced by a new name, the old favorite names might come back once again in the following years. However, when the top position was replaced for the second time, the old favorites are no longer the favorites.    
 
-##### Next questions: what social context caused the short appearance of Ashley and David?
+### Next possible questions: 
+1. What social context caused the short appearance of Ashley and David?    
+2. What are the all-time popular names?
