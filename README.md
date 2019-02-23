@@ -1,4 +1,7 @@
 ## Work update    
+2019.02 [Practice to scrape information from a webpage](https://linclgit.github.io/data_in_real_practice/output/Crawler_biobankSites.html)
+
+
 2019.02 [Practice to unzip files and merge extracted data](https://github.com/linclgit/data_in_real_practice/blob/master/output/Unzip_and_merge.md)    
 <img src="https://github.com/linclgit/data_in_real_practice/blob/master/images/popular_babynames-1.png" width="50%">    
         
