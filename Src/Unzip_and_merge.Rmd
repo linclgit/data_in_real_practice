@@ -54,7 +54,7 @@ df <- do.call ("rbind",
                lapply (files, read.table, sep = ",")) %>% 
   # rbindlist (lapply (files, read.table, sep = ",")) 
   # works as well
-  as_tibble %>% # turn the table into tbl_df
+  as_tibble %>% # turn the table into tibble
   print
 
 table (df$V1) # check if all states are in
@@ -64,14 +64,16 @@ names (df) <- header
 df 
 ```
 
-### Some exploratory analysis
+### Some exploratory analysis: what are the most popular names of the years?
 ```{r}
-popular_names <- df %>% 
-  group_by (state, sex, year) %>% 
-  filter (occurrence == max (occurrence)) %>% 
-  group_by (sex, year) %>% 
-  summarize (name = names (which.max (table (name))))
-  # get the most popular name of the year
+national_count <- df %>% # sum up national count of baby names
+  group_by(sex, year, name) %>% 
+  summarize (occurrence_all = sum (occurrence)) %>% 
+  arrange (sex, year, desc(occurrence_all)) %>% 
+  print
+
+popular_names <- national_count %>% # look for the most popular names
+  filter (occurrence_all == max (occurrence_all)) 
   
 popular_names %>% # print table
   spread (sex, name) %>% 
@@ -80,22 +82,31 @@ popular_names %>% # print table
 ```
 
 ### Use heatmap concept in ggplot2 to show time series changes
-```{r, fig.width=10}
+```{r popular_babynames, fig.width=10}
 library (ggplot2)
 ggplot (popular_names %>% filter (sex == "F"), 
        aes (x = year, y = reorder (name, -year), fill = name)) + 
   # reorder names according to their order of appearance (ascending year)
   # specify colors by names
   geom_tile () +
-  labs (y = "most popular female names") +
+  labs (x = "", y="", title = "Most popular baby girl names") +
   scale_x_continuous (breaks = seq (min (popular_names$year), max (popular_names$year), by = 10)) +
-  theme (legend.position = "none") # remove legend
+  theme_minimal() +
+  theme (legend.position = "none", # remove legend
+         axis.text.y = element_text (size = 18))
 
 ggplot (popular_names %>% filter (sex == "M"), 
        aes (x = year, y = reorder (name, -year), fill = name)) +
   geom_tile () +
-  labs (y = "most popular male names") +
-    scale_x_continuous (breaks = seq (min (popular_names$year), max (popular_names$year), by = 10)) +
-  theme (legend.position = "none")
+  labs (x = "", y="", title = "Most popular baby boy names") +
+  scale_x_continuous (breaks = seq (min (popular_names$year), max (popular_names$year), by = 10)) +
+  theme_minimal() +
+  theme (legend.position = "none", # remove legend
+         axis.text.y = element_text (size = 18))
 ```
+    
+### Summary: 
+1. Over the past century, the most popular female names have changed 10 times, whereas male names changed only 7 times, suggesting parents look for new names more frequently for baby girls than for boys.    
+2. After the top position of the list was replaced by a new name, the old favorite names might come back once again in the following years. However, when the top position was replaced for the second time, the old favorites are no longer the favorites.    
 
+##### Next questions: what social context caused the short appearance of Ashley and David?

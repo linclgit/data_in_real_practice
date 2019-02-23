@@ -83,7 +83,7 @@ df <- do.call ("rbind",
                lapply (files, read.table, sep = ",")) %>% 
   # rbindlist (lapply (files, read.table, sep = ",")) 
   # works as well
-  as_tibble %>% # turn the table into tbl_df
+  as_tibble %>% # turn the table into tibble
   print
 ## # A tibble: 5,838,786 x 5
 ##    V1    V2       V3 V4          V5
@@ -134,15 +134,32 @@ df
 ## # … with 5,838,776 more rows
 ```
 
-### Some exploratory analysis
+### Some exploratory analysis: what are the most popular names of the years?
 
 ``` r
-popular_names <- df %>% 
-  group_by (state, sex, year) %>% 
-  filter (occurrence == max (occurrence)) %>% 
-  group_by (sex, year) %>% 
-  summarize (name = names (which.max (table (name))))
-  # get the most popular name of the year
+national_count <- df %>% # sum up national count of baby names
+  group_by(sex, year, name) %>% 
+  summarize (occurrence_all = sum (occurrence)) %>% 
+  arrange (sex, year, desc(occurrence_all)) %>% 
+  print
+## # A tibble: 604,054 x 4
+## # Groups:   sex, year [214]
+##    sex    year name      occurrence_all
+##    <fct> <int> <fct>              <int>
+##  1 F      1910 Mary               22848
+##  2 F      1910 Helen              10479
+##  3 F      1910 Margaret            8222
+##  4 F      1910 Dorothy             7314
+##  5 F      1910 Ruth                7209
+##  6 F      1910 Anna                6433
+##  7 F      1910 Elizabeth           5792
+##  8 F      1910 Mildred             5690
+##  9 F      1910 Marie               4778
+## 10 F      1910 Alice               4666
+## # … with 604,044 more rows
+
+popular_names <- national_count %>% # look for the most popular names
+  filter (occurrence_all == max (occurrence_all)) 
   
 popular_names %>% # print table
   spread (sex, name) %>% 
@@ -150,115 +167,222 @@ popular_names %>% # print table
   print
 ## 
 ## 
-## | year|F        |M       |
-## |----:|:--------|:-------|
-## | 1910|Mary     |John    |
-## | 1911|Mary     |John    |
-## | 1912|Mary     |John    |
-## | 1913|Mary     |John    |
-## | 1914|Mary     |John    |
-## | 1915|Mary     |John    |
-## | 1916|Mary     |John    |
-## | 1917|Mary     |John    |
-## | 1918|Mary     |John    |
-## | 1919|Mary     |John    |
-## | 1920|Mary     |Robert  |
-## | 1921|Mary     |Robert  |
-## | 1922|Mary     |Robert  |
-## | 1923|Mary     |Robert  |
-## | 1924|Mary     |Robert  |
-## | 1925|Mary     |Robert  |
-## | 1926|Mary     |Robert  |
-## | 1927|Mary     |Robert  |
-## | 1928|Mary     |Robert  |
-## | 1929|Mary     |Robert  |
-## | 1930|Mary     |Robert  |
-## | 1931|Mary     |Robert  |
-## | 1932|Mary     |Robert  |
-## | 1933|Mary     |Robert  |
-## | 1934|Mary     |Robert  |
-## | 1935|Mary     |Robert  |
-## | 1936|Mary     |Robert  |
-## | 1937|Mary     |Robert  |
-## | 1938|Mary     |Robert  |
-## | 1939|Mary     |Robert  |
-## | 1940|Mary     |Robert  |
-## | 1941|Mary     |Robert  |
-## | 1942|Mary     |Robert  |
-## | 1943|Mary     |Robert  |
-## | 1944|Mary     |Robert  |
-## | 1945|Mary     |Robert  |
-## | 1946|Mary     |Robert  |
-## | 1947|Linda    |Robert  |
-## | 1948|Linda    |James   |
-## | 1949|Linda    |James   |
-## | 1950|Linda    |James   |
-## | 1951|Linda    |James   |
-## | 1952|Linda    |James   |
-## | 1953|Mary     |Michael |
-## | 1954|Mary     |Michael |
-## | 1955|Mary     |David   |
-## | 1956|Mary     |Michael |
-## | 1957|Mary     |Michael |
-## | 1958|Mary     |Michael |
-## | 1959|Mary     |David   |
-## | 1960|Mary     |David   |
-## | 1961|Mary     |David   |
-## | 1962|Lisa     |David   |
-## | 1963|Lisa     |Michael |
-## | 1964|Lisa     |Michael |
-## | 1965|Lisa     |Michael |
-## | 1966|Lisa     |Michael |
-## | 1967|Lisa     |Michael |
-## | 1968|Lisa     |Michael |
-## | 1969|Lisa     |Michael |
-## | 1970|Jennifer |Michael |
-## | 1971|Jennifer |Michael |
-## | 1972|Jennifer |Michael |
-## | 1973|Jennifer |Michael |
-## | 1974|Jennifer |Michael |
-## | 1975|Jennifer |Michael |
-## | 1976|Jennifer |Michael |
-## | 1977|Jennifer |Michael |
-## | 1978|Jennifer |Michael |
-## | 1979|Jennifer |Michael |
-## | 1980|Jennifer |Michael |
-## | 1981|Jennifer |Michael |
-## | 1982|Jennifer |Michael |
-## | 1983|Jennifer |Michael |
-## | 1984|Jennifer |Michael |
-## | 1985|Ashley   |Michael |
-## | 1986|Ashley   |Michael |
-## | 1987|Ashley   |Michael |
-## | 1988|Jessica  |Michael |
-## | 1989|Ashley   |Michael |
-## | 1990|Ashley   |Michael |
-## | 1991|Ashley   |Michael |
-## | 1992|Ashley   |Michael |
-## | 1993|Ashley   |Michael |
-## | 1994|Ashley   |Michael |
-## | 1995|Jessica  |Michael |
-## | 1996|Emily    |Jacob   |
-## | 1997|Emily    |Jacob   |
-## | 1998|Emily    |Jacob   |
-## | 1999|Emily    |Jacob   |
-## | 2000|Emily    |Jacob   |
-## | 2001|Emily    |Jacob   |
-## | 2002|Madison  |Jacob   |
-## | 2003|Emma     |Jacob   |
-## | 2004|Emma     |Jacob   |
-## | 2005|Emma     |Jacob   |
-## | 2006|Emma     |Jacob   |
-## | 2007|Madison  |Jacob   |
-## | 2008|Emma     |Ethan   |
-## | 2009|Isabella |William |
-## | 2010|Isabella |Jacob   |
-## | 2011|Sophia   |Mason   |
-## | 2012|Emma     |Mason   |
-## | 2013|Emma     |Liam    |
-## | 2014|Emma     |Liam    |
-## | 2015|Emma     |Liam    |
-## | 2016|Emma     |Liam    |
+## | year| occurrence_all|F        |M       |
+## |----:|--------------:|:--------|:-------|
+## | 1910|          11450|NA       |John    |
+## | 1910|          22848|Mary     |NA      |
+## | 1911|          13446|NA       |John    |
+## | 1911|          24390|Mary     |NA      |
+## | 1912|          24587|NA       |John    |
+## | 1912|          32304|Mary     |NA      |
+## | 1913|          29329|NA       |John    |
+## | 1913|          36641|Mary     |NA      |
+## | 1914|          37948|NA       |John    |
+## | 1914|          45345|Mary     |NA      |
+## | 1915|          47577|NA       |John    |
+## | 1915|          58187|Mary     |NA      |
+## | 1916|          50046|NA       |John    |
+## | 1916|          61438|Mary     |NA      |
+## | 1917|          51852|NA       |John    |
+## | 1917|          64281|Mary     |NA      |
+## | 1918|          56559|NA       |John    |
+## | 1918|          67368|Mary     |NA      |
+## | 1919|          53528|NA       |John    |
+## | 1919|          65842|Mary     |NA      |
+## | 1920|          56916|NA       |John    |
+## | 1920|          70975|Mary     |NA      |
+## | 1921|          58222|NA       |John    |
+## | 1921|          73983|Mary     |NA      |
+## | 1922|          57272|NA       |John    |
+## | 1922|          72173|Mary     |NA      |
+## | 1923|          57469|NA       |John    |
+## | 1923|          71634|Mary     |NA      |
+## | 1924|          60801|NA       |Robert  |
+## | 1924|          73533|Mary     |NA      |
+## | 1925|          60894|NA       |Robert  |
+## | 1925|          70596|Mary     |NA      |
+## | 1926|          61128|NA       |Robert  |
+## | 1926|          67831|Mary     |NA      |
+## | 1927|          61668|NA       |Robert  |
+## | 1927|          70638|Mary     |NA      |
+## | 1928|          60691|NA       |Robert  |
+## | 1928|          66863|Mary     |NA      |
+## | 1929|          59798|NA       |Robert  |
+## | 1929|          63513|Mary     |NA      |
+## | 1930|          62151|NA       |Robert  |
+## | 1930|          64142|Mary     |NA      |
+## | 1931|          60292|Mary     |NA      |
+## | 1931|          60502|NA       |Robert  |
+## | 1932|          59259|NA       |Robert  |
+## | 1932|          59870|Mary     |NA      |
+## | 1933|          54209|NA       |Robert  |
+## | 1933|          55498|Mary     |NA      |
+## | 1934|          55829|NA       |Robert  |
+## | 1934|          56925|Mary     |NA      |
+## | 1935|          55067|Mary     |NA      |
+## | 1935|          56519|NA       |Robert  |
+## | 1936|          54368|Mary     |NA      |
+## | 1936|          58489|NA       |Robert  |
+## | 1937|          55643|Mary     |NA      |
+## | 1937|          61824|NA       |Robert  |
+## | 1938|          56213|Mary     |NA      |
+## | 1938|          62268|NA       |Robert  |
+## | 1939|          54904|Mary     |NA      |
+## | 1939|          59645|NA       |Robert  |
+## | 1940|          56198|Mary     |NA      |
+## | 1940|          62474|NA       |James   |
+## | 1941|          58039|Mary     |NA      |
+## | 1941|          66729|NA       |James   |
+## | 1942|          63243|Mary     |NA      |
+## | 1942|          77179|NA       |James   |
+## | 1943|          66171|Mary     |NA      |
+## | 1943|          80256|NA       |James   |
+## | 1944|          62464|Mary     |NA      |
+## | 1944|          76948|NA       |James   |
+## | 1945|          59288|Mary     |NA      |
+## | 1945|          74450|NA       |James   |
+## | 1946|          67465|Mary     |NA      |
+## | 1946|          87425|NA       |James   |
+## | 1947|          94762|NA       |James   |
+## | 1947|          99685|Linda    |NA      |
+## | 1948|          88584|NA       |James   |
+## | 1948|          96210|Linda    |NA      |
+## | 1949|          86856|NA       |James   |
+## | 1949|          91013|Linda    |NA      |
+## | 1950|          80439|Linda    |NA      |
+## | 1950|          86238|NA       |James   |
+## | 1951|          73970|Linda    |NA      |
+## | 1951|          87283|NA       |James   |
+## | 1952|          67082|Linda    |NA      |
+## | 1952|          87061|NA       |James   |
+## | 1953|          64366|Mary     |NA      |
+## | 1953|          86189|NA       |Robert  |
+## | 1954|          68006|Mary     |NA      |
+## | 1954|          88525|NA       |Michael |
+## | 1955|          63159|Mary     |NA      |
+## | 1955|          88301|NA       |Michael |
+## | 1956|          61750|Mary     |NA      |
+## | 1956|          90620|NA       |Michael |
+## | 1957|          61095|Mary     |NA      |
+## | 1957|          92716|NA       |Michael |
+## | 1958|          55855|Mary     |NA      |
+## | 1958|          90512|NA       |Michael |
+## | 1959|          54473|Mary     |NA      |
+## | 1959|          85262|NA       |Michael |
+## | 1960|          51477|Mary     |NA      |
+## | 1960|          85940|NA       |David   |
+## | 1961|          47667|Mary     |NA      |
+## | 1961|          86922|NA       |Michael |
+## | 1962|          46081|Lisa     |NA      |
+## | 1962|          85042|NA       |Michael |
+## | 1963|          56037|Lisa     |NA      |
+## | 1963|          83788|NA       |Michael |
+## | 1964|          54277|Lisa     |NA      |
+## | 1964|          82663|NA       |Michael |
+## | 1965|          60267|Lisa     |NA      |
+## | 1965|          81042|NA       |Michael |
+## | 1966|          56914|Lisa     |NA      |
+## | 1966|          79989|NA       |Michael |
+## | 1967|          52435|Lisa     |NA      |
+## | 1967|          82448|NA       |Michael |
+## | 1968|          49536|Lisa     |NA      |
+## | 1968|          82017|NA       |Michael |
+## | 1969|          45027|Lisa     |NA      |
+## | 1969|          85224|NA       |Michael |
+## | 1970|          46159|Jennifer |NA      |
+## | 1970|          85315|NA       |Michael |
+## | 1971|          56783|Jennifer |NA      |
+## | 1971|          77598|NA       |Michael |
+## | 1972|          63609|Jennifer |NA      |
+## | 1972|          71414|NA       |Michael |
+## | 1973|          62454|Jennifer |NA      |
+## | 1973|          67861|NA       |Michael |
+## | 1974|          63117|Jennifer |NA      |
+## | 1974|          67585|NA       |Michael |
+## | 1975|          58186|Jennifer |NA      |
+## | 1975|          68454|NA       |Michael |
+## | 1976|          59476|Jennifer |NA      |
+## | 1976|          66966|NA       |Michael |
+## | 1977|          58964|Jennifer |NA      |
+## | 1977|          67615|NA       |Michael |
+## | 1978|          56318|Jennifer |NA      |
+## | 1978|          67159|NA       |Michael |
+## | 1979|          56720|Jennifer |NA      |
+## | 1979|          67735|NA       |Michael |
+## | 1980|          58379|Jennifer |NA      |
+## | 1980|          68680|NA       |Michael |
+## | 1981|          57046|Jennifer |NA      |
+## | 1981|          68765|NA       |Michael |
+## | 1982|          57113|Jennifer |NA      |
+## | 1982|          68228|NA       |Michael |
+## | 1983|          54339|Jennifer |NA      |
+## | 1983|          67993|NA       |Michael |
+## | 1984|          50562|Jennifer |NA      |
+## | 1984|          67732|NA       |Michael |
+## | 1985|          48345|Jessica  |NA      |
+## | 1985|          64899|NA       |Michael |
+## | 1986|          52668|Jessica  |NA      |
+## | 1986|          64202|NA       |Michael |
+## | 1987|          55988|Jessica  |NA      |
+## | 1987|          63642|NA       |Michael |
+## | 1988|          51537|Jessica  |NA      |
+## | 1988|          64123|NA       |Michael |
+## | 1989|          47882|Jessica  |NA      |
+## | 1989|          65381|NA       |Michael |
+## | 1990|          46473|Jessica  |NA      |
+## | 1990|          65276|NA       |Michael |
+## | 1991|          43479|Ashley   |NA      |
+## | 1991|          60783|NA       |Michael |
+## | 1992|          38453|Ashley   |NA      |
+## | 1992|          54387|NA       |Michael |
+## | 1993|          34987|Jessica  |NA      |
+## | 1993|          49552|NA       |Michael |
+## | 1994|          32118|Jessica  |NA      |
+## | 1994|          44467|NA       |Michael |
+## | 1995|          27934|Jessica  |NA      |
+## | 1995|          41403|NA       |Michael |
+## | 1996|          25151|Emily    |NA      |
+## | 1996|          38364|NA       |Michael |
+## | 1997|          25731|Emily    |NA      |
+## | 1997|          37548|NA       |Michael |
+## | 1998|          26180|Emily    |NA      |
+## | 1998|          36614|NA       |Michael |
+## | 1999|          26538|Emily    |NA      |
+## | 1999|          35352|NA       |Jacob   |
+## | 2000|          25953|Emily    |NA      |
+## | 2000|          34470|NA       |Jacob   |
+## | 2001|          25054|Emily    |NA      |
+## | 2001|          32536|NA       |Jacob   |
+## | 2002|          24460|Emily    |NA      |
+## | 2002|          30563|NA       |Jacob   |
+## | 2003|          25688|Emily    |NA      |
+## | 2003|          29626|NA       |Jacob   |
+## | 2004|          25032|Emily    |NA      |
+## | 2004|          27876|NA       |Jacob   |
+## | 2005|          23934|Emily    |NA      |
+## | 2005|          25826|NA       |Jacob   |
+## | 2006|          21398|Emily    |NA      |
+## | 2006|          24835|NA       |Jacob   |
+## | 2007|          19353|Emily    |NA      |
+## | 2007|          24265|NA       |Jacob   |
+## | 2008|          18806|Emma     |NA      |
+## | 2008|          22587|NA       |Jacob   |
+## | 2009|          21162|NA       |Jacob   |
+## | 2009|          22289|Isabella |NA      |
+## | 2010|          22110|NA       |Jacob   |
+## | 2010|          22898|Isabella |NA      |
+## | 2011|          20356|NA       |Jacob   |
+## | 2011|          21833|Sophia   |NA      |
+## | 2012|          19061|NA       |Jacob   |
+## | 2012|          22292|Sophia   |NA      |
+## | 2013|          18224|NA       |Noah    |
+## | 2013|          21193|Sophia   |NA      |
+## | 2014|          19263|NA       |Noah    |
+## | 2014|          20912|Emma     |NA      |
+## | 2015|          19594|NA       |Noah    |
+## | 2015|          20415|Emma     |NA      |
+## | 2016|          19015|NA       |Noah    |
+## | 2016|          19414|Emma     |NA      |
 ```
 
 ### Use heatmap concept in ggplot2 to show time series changes
@@ -270,21 +394,32 @@ ggplot (popular_names %>% filter (sex == "F"),
   # reorder names according to their order of appearance (ascending year)
   # specify colors by names
   geom_tile () +
-  labs (y = "most popular female names") +
+  labs (x = "", y="", title = "Most popular baby girl names") +
   scale_x_continuous (breaks = seq (min (popular_names$year), max (popular_names$year), by = 10)) +
-  theme (legend.position = "none") # remove legend
+  theme_minimal() +
+  theme (legend.position = "none", # remove legend
+         axis.text.y = element_text (size = 18))
 ```
 
-![](../images/unnamed-chunk-9-1.png)
+![](../images/popular_babynames-1.png)
 
 ``` r
 
 ggplot (popular_names %>% filter (sex == "M"), 
        aes (x = year, y = reorder (name, -year), fill = name)) +
   geom_tile () +
-  labs (y = "most popular male names") +
-    scale_x_continuous (breaks = seq (min (popular_names$year), max (popular_names$year), by = 10)) +
-  theme (legend.position = "none")
+  labs (x = "", y="", title = "Most popular baby boy names") +
+  scale_x_continuous (breaks = seq (min (popular_names$year), max (popular_names$year), by = 10)) +
+  theme_minimal() +
+  theme (legend.position = "none", # remove legend
+         axis.text.y = element_text (size = 18))
 ```
 
-![](../images/unnamed-chunk-9-2.png)
+![](../images/popular_babynames-2.png)
+
+### Summary:
+
+1.  Over the past century, the most popular female names have changed 10 times, whereas male names changed only 7 times, suggesting parents look for new names more frequently for baby girls than for boys.
+2.  After the top position of the list was replaced by a new name, the old favorite names might come back once again in the following years. However, when the top position was replaced for the second time, the old favorites are no longer the favorites.
+
+##### Next questions: what social context caused the short appearance of Ashley and David?
