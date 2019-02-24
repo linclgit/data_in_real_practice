@@ -194,7 +194,7 @@ library (tidyverse)</code></pre>
 res = GET (url) # use GET method to get the web response
 res
 ## Response [https://www.twbiobank.org.tw/new_web/contact.php]
-##   Date: 2019-02-23 09:04
+##   Date: 2019-02-24 14:19
 ##   Status: 200
 ##   Content-Type: text/html; charset=UTF-8
 ##   Size: 30 kB
@@ -209,8 +209,8 @@ res
 ## &lt;link rel=&quot;shortcut icon&quot; href=&quot;img/favicon.ico&quot; type=&quot;image/x-icon&quot;/&gt;
 ## &lt;link rel=&quot;shortcut icon&quot; type=&quot;image/png&quot; href=&quot;img/favicon.png&quot;/&gt;
 ## ...</code></pre>
-<div id="a-quick-view-of-the-web-response" class="section level1">
-<h1>A quick view of the web response</h1>
+<div id="a-quick-view-of-the-web-response" class="section level3">
+<h3>A quick view of the web response</h3>
 <pre class="r"><code># str (res)  
 # names (res)
 # res$all_headers
@@ -219,13 +219,13 @@ res
 # res$cookies  
 # res$content</code></pre>
 </div>
-<div id="info-we-want-is-usually-in-content" class="section level1">
-<h1>Info we want is usually in “content”</h1>
+<div id="info-we-want-is-usually-in-content" class="section level3">
+<h3>Info we want is usually in “content”</h3>
 <pre class="r"><code># content(res, as = &quot;raw&quot;) # binary codes
 # content(res, as = &quot;text&quot;) # default encoding method is utf-8</code></pre>
 </div>
-<div id="scrape-the-site-addresses" class="section level1">
-<h1>(1) Scrape the site addresses</h1>
+<div id="scrape-the-site-addresses" class="section level3">
+<h3>(1) Scrape the site addresses</h3>
 <pre class="r"><code>address &lt;- res %&gt;% 
   content (as = &quot;text&quot;) %&gt;% 
   read_html %&gt;% 
@@ -247,8 +247,9 @@ head (address) # View the site name and address info
 ## 5                 新北 淡水馬偕醫院新北市淡水區民權路47號 馬偕樓1樓
 ## 6      桃園 衛生福利部桃園醫院駐站桃園市桃園區中山路1492號 群英樓B1</code></pre>
 </div>
-<div id="some-data-cleaning" class="section level1">
-<h1>Some data cleaning</h1>
+<div id="some-data-cleaning" class="section level3">
+<h3>Some data cleaning:</h3>
+<p>divide the location string into the following columns, city, site, address, and building</p>
 <pre class="r"><code>address_df &lt;- address %&gt;% 
   separate (&quot;.&quot;, into = c (&quot;city&quot;, &quot;location&quot;), sep = 2) %&gt;% 
   slice (2:n()) # select 2nd to n rows
@@ -284,8 +285,8 @@ head (address_df)
 dim (address_df)
 ## [1] 38  4</code></pre>
 </div>
-<div id="scrape-the-coordinate-info" class="section level1">
-<h1>(2) Scrape the coordinate info</h1>
+<div id="scrape-the-coordinate-info" class="section level3">
+<h3>(2) Scrape the coordinate info</h3>
 <pre class="r"><code>geo &lt;- res %&gt;% 
   content (as = &quot;text&quot;) %&gt;% 
   read_html %&gt;% 
@@ -294,8 +295,9 @@ dim (address_df)
 
 #str (geo)</code></pre>
 </div>
-<div id="some-data-cleaning-1" class="section level1">
-<h1>Some data cleaning</h1>
+<div id="some-data-cleaning-1" class="section level3">
+<h3>Some data cleaning:</h3>
+<p>turn the list into data frame</p>
 <pre class="r"><code>geo_df &lt;- t (as.data.frame (geo, col.names = paste0(&quot;X&quot;, c(1:34)))) 
 head (geo_df)
 ##    data-geo-lat data-geo-long
@@ -307,8 +309,8 @@ head (geo_df)
 ## X6 &quot;24.8165889&quot; &quot;120.9773071&quot;
 row.names (geo_df) &lt;- NULL</code></pre>
 </div>
-<div id="combine-the-2-tables" class="section level1">
-<h1>(3) Combine the 2 tables</h1>
+<div id="combine-the-2-tables" class="section level3">
+<h3>(3) Combine the 2 tables</h3>
 <pre class="r"><code>stations &lt;- cbind (address_df, geo_df)
 library (knitr); library (kableExtra)
 kable (stations, format = &quot;markdown&quot;)</code></pre>
