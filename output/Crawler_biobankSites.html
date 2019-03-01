@@ -202,11 +202,13 @@ $(document).ready(function () {
 library (tidyverse); library(ggplot2)
 library (maps); library(mapdata); library(ggmap)
 library (RColorBrewer)</code></pre>
+<div id="example-webpage-this-page-shows-the-contact-information-of-several-work-sites-of-the-organization" class="section level3">
+<h3>Example webpage: this page shows the contact information of several work sites of the organization</h3>
 <pre class="r"><code>url = &quot;https://www.twbiobank.org.tw/new_web/contact.php&quot;
 res = GET (url) # use GET method to get the web response
 res
 ## Response [https://www.twbiobank.org.tw/new_web/contact.php]
-##   Date: 2019-03-01 01:17
+##   Date: 2019-03-01 02:47
 ##   Status: 200
 ##   Content-Type: text/html; charset=UTF-8
 ##   Size: 30 kB
@@ -221,6 +223,7 @@ res
 ## &lt;link rel=&quot;shortcut icon&quot; href=&quot;img/favicon.ico&quot; type=&quot;image/x-icon&quot;/&gt;
 ## &lt;link rel=&quot;shortcut icon&quot; type=&quot;image/png&quot; href=&quot;img/favicon.png&quot;/&gt;
 ## ...</code></pre>
+</div>
 <div id="a-quick-view-of-the-web-response" class="section level3">
 <h3>A quick view of the web response</h3>
 <pre class="r"><code># str (res)  
@@ -236,21 +239,18 @@ res
 <pre class="r"><code># content(res, as = &quot;raw&quot;) # binary codes
 # content(res, as = &quot;text&quot;) # default encoding method is utf-8</code></pre>
 </div>
-<div id="scrape-the-site-addresses" class="section level3">
-<h3>(1) Scrape the site addresses</h3>
+<div id="scrape-the-work-site-addresses" class="section level3">
+<h3>1– Scrape the work site addresses</h3>
 <pre class="r"><code>address &lt;- res %&gt;% 
   content (as = &quot;text&quot;) %&gt;% 
   read_html %&gt;% 
   html_nodes (xpath = &quot;//div[@class='panel address']&quot;) %&gt;% 
   html_text %&gt;% # turn the content into text
-  as.data.frame # turn into data.frame
+  as.data.frame # turn the table into data.frame
 
-class (address)
-## [1] &quot;data.frame&quot;
-str(address)
-## 'data.frame':    39 obs. of  1 variable:
-##  $ .: Factor w/ 39 levels &quot;南投 埔里基督教醫院駐站南投縣埔里鎮鐵山路1號 D棟恩典樓B1&quot;,..: 33 22 23 11 10 13 12 30 18 20 ...
-head (address) # View the site name and address info
+#class (address)
+#str(address)
+head (address) # Overview of the scraped content
 ##                                                                   .
 ## 1                                                              駐站
 ## 2 臺北 三軍總醫院汀州院區駐站臺北市中正區汀州路三段40號 門診大樓1樓
@@ -301,7 +301,7 @@ head (address_df)
 ## 6                 &lt;NA&gt; cohort</code></pre>
 </div>
 <div id="scrape-the-coordinate-info" class="section level3">
-<h3>(2) Scrape the coordinate info</h3>
+<h3>2– Scrape the coordinate info</h3>
 <pre class="r"><code>geo &lt;- res %&gt;% 
   content (as = &quot;text&quot;) %&gt;% 
   read_html %&gt;% 
@@ -310,7 +310,7 @@ head (address_df)
 </div>
 <div id="some-data-cleaning-1" class="section level3">
 <h3>Some data cleaning:</h3>
-<p>turn the list into data frame</p>
+<p>turn the list into data frame and rename columns</p>
 <pre class="r"><code>geo_df &lt;- t (as.data.frame (geo, col.names = paste0(&quot;X&quot;, c(1:34)))) 
 geo_df &lt;- as.data.frame(geo_df)
 head (geo_df)
@@ -326,14 +326,14 @@ colnames (geo_df) &lt;- c(&quot;lat&quot;, &quot;long&quot;)
 row.names (geo_df) &lt;- NULL</code></pre>
 </div>
 <div id="combine-the-2-tables" class="section level3">
-<h3>(3) Combine the 2 tables</h3>
+<h3>3– Combine the 2 tables</h3>
 <pre class="r"><code>stations &lt;- cbind (address_df, geo_df)
 library (knitr); library (kableExtra)
 kable (stations, format = &quot;html&quot;) %&gt;% 
-  kable_styling() %&gt;%
+  kable_styling(bootstrap_options = &quot;striped&quot;, font_size = 12) %&gt;%
   scroll_box(height = &quot;300px&quot;)</code></pre>
 <div style="border: 1px solid #ddd; padding: 5px; overflow-y: scroll; height:300px; ">
-<table class="table" style="margin-left: auto; margin-right: auto;">
+<table class="table table-striped" style="font-size: 12px; margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
 <th style="text-align:left;">
@@ -1239,7 +1239,7 @@ medical_center
 </div>
 </div>
 <div id="plot-the-sites" class="section level3">
-<h3>(4) Plot the sites</h3>
+<h3>4– Plot the sites</h3>
 <ul>
 <li>mose over to see site names</li>
 </ul>
@@ -1254,8 +1254,8 @@ leaflet() %&gt;% addProviderTiles(providers$Stamen.TonerLite) %&gt;%
              lng = ~long, lat = ~lat, weight = 5, label = ~site) %&gt;%
   addCircles(data = stations %&gt;% filter (type==&quot;medical_center&quot;), color = &quot;blue&quot;,
              lng = ~long, lat = ~lat, weight = 5, label = ~site)</code></pre>
-<div id="htmlwidget-f17b4ab62bd4c621f226" style="width:672px;height:480px;" class="leaflet html-widget"></div>
-<script type="application/json" data-for="htmlwidget-f17b4ab62bd4c621f226">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"calls":[{"method":"addProviderTiles","args":["Stamen.TonerLite",null,null,{"errorTileUrl":"","noWrap":false,"detectRetina":false}]},{"method":"addCircles","args":[[25.0165081,25.0382005,25.0377574,25.1397589,24.9772568,24.8165889,24.575502,24.1823619,24.2425977,24.1561147,24.077888,23.9645876,23.9704965,23.5304815,23.4810377,23.4599872,23.3089232,23.288519,22.967718,22.6269744,22.5687142,22.626625,22.760019,22.6733243,24.6718382,23.9878102,24.0249411,22.7571694,23.5532372,24.4441129,23.7608533],[121.5298502,121.544551,121.4319429,121.4599221,121.2682486,120.9773071,120.84138,120.6171293,120.7255177,120.6800312,120.411342,120.5644942,120.9463243,120.345948,120.426136,120.2250237,120.3133117,120.325344,120.2264605,120.2950576,120.3604636,120.3235881,120.3674044,120.4955525,121.7715737,121.6263725,121.6042854,121.1500477,119.5853407,118.4160403,120.6117475],10,null,null,{"interactive":true,"className":"","stroke":true,"color":"red","weight":5,"opacity":0.5,"fill":true,"fillColor":"red","fillOpacity":0.2},null,null,[" 三軍總醫院汀州院區"," 宏恩醫院"," 輔大診所"," 淡水馬偕醫院"," 衛生福利部桃園醫院"," 台大醫院新竹分院"," 衛生福利部苗栗醫院"," 中港澄清醫院"," 衛生福利部豐原醫院"," 中國醫藥大學附設醫院"," 彰濱秀傳醫院"," 彰化員林基督教醫院"," 埔里基督教醫院"," 大林慈濟醫院"," 衛福部嘉義醫院"," 衛生福利部朴子醫院"," 衛生福利部新營醫院"," 柳營奇美醫院"," 臺南市立醫院"," 高雄市立大同醫院"," 高雄市立小港醫院"," 高雄市立民生醫院"," 高雄義大醫院"," 衛生福利部屏東醫院"," 羅東聖母醫院"," 花蓮門諾醫院"," 國軍花蓮醫院"," 衛生福利部臺東醫院"," 三軍總醫院澎湖分院"," 金門縣衛生局"," 雲林林內衛生所"],{"interactive":false,"permanent":false,"direction":"auto","opacity":1,"offset":[0,0],"textsize":"10px","textOnly":false,"className":"","sticky":true},null,null]},{"method":"addCircles","args":[[25.0717589,24.155899,24.1213581,24.1845705,24.0784818,22.6473036,22.677537],[121.5904223,120.6789363,120.6476345,120.6017913,120.5376007,120.3081248,120.3203153],10,null,null,{"interactive":true,"className":"","stroke":true,"color":"blue","weight":5,"opacity":0.5,"fill":true,"fillColor":"blue","fillOpacity":0.2},null,null,[" 三軍總醫院內湖"," 中國醫藥大學附設醫院"," 中山醫學大學附設醫院"," 臺中榮民總醫院"," 彰化基督教醫院"," 高雄醫學大學附設醫院"," 高雄榮民總醫院"],{"interactive":false,"permanent":false,"direction":"auto","opacity":1,"offset":[0,0],"textsize":"10px","textOnly":false,"className":"","sticky":true},null,null]}],"setView":[[23.5,121],7,[]],"limits":{"lat":[22.5687142,25.1397589],"lng":[118.4160403,121.7715737]}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-a66419b2fdf717c75511" style="width:672px;height:480px;" class="leaflet html-widget"></div>
+<script type="application/json" data-for="htmlwidget-a66419b2fdf717c75511">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"calls":[{"method":"addProviderTiles","args":["Stamen.TonerLite",null,null,{"errorTileUrl":"","noWrap":false,"detectRetina":false}]},{"method":"addCircles","args":[[25.0165081,25.0382005,25.0377574,25.1397589,24.9772568,24.8165889,24.575502,24.1823619,24.2425977,24.1561147,24.077888,23.9645876,23.9704965,23.5304815,23.4810377,23.4599872,23.3089232,23.288519,22.967718,22.6269744,22.5687142,22.626625,22.760019,22.6733243,24.6718382,23.9878102,24.0249411,22.7571694,23.5532372,24.4441129,23.7608533],[121.5298502,121.544551,121.4319429,121.4599221,121.2682486,120.9773071,120.84138,120.6171293,120.7255177,120.6800312,120.411342,120.5644942,120.9463243,120.345948,120.426136,120.2250237,120.3133117,120.325344,120.2264605,120.2950576,120.3604636,120.3235881,120.3674044,120.4955525,121.7715737,121.6263725,121.6042854,121.1500477,119.5853407,118.4160403,120.6117475],10,null,null,{"interactive":true,"className":"","stroke":true,"color":"red","weight":5,"opacity":0.5,"fill":true,"fillColor":"red","fillOpacity":0.2},null,null,[" 三軍總醫院汀州院區"," 宏恩醫院"," 輔大診所"," 淡水馬偕醫院"," 衛生福利部桃園醫院"," 台大醫院新竹分院"," 衛生福利部苗栗醫院"," 中港澄清醫院"," 衛生福利部豐原醫院"," 中國醫藥大學附設醫院"," 彰濱秀傳醫院"," 彰化員林基督教醫院"," 埔里基督教醫院"," 大林慈濟醫院"," 衛福部嘉義醫院"," 衛生福利部朴子醫院"," 衛生福利部新營醫院"," 柳營奇美醫院"," 臺南市立醫院"," 高雄市立大同醫院"," 高雄市立小港醫院"," 高雄市立民生醫院"," 高雄義大醫院"," 衛生福利部屏東醫院"," 羅東聖母醫院"," 花蓮門諾醫院"," 國軍花蓮醫院"," 衛生福利部臺東醫院"," 三軍總醫院澎湖分院"," 金門縣衛生局"," 雲林林內衛生所"],{"interactive":false,"permanent":false,"direction":"auto","opacity":1,"offset":[0,0],"textsize":"10px","textOnly":false,"className":"","sticky":true},null,null]},{"method":"addCircles","args":[[25.0717589,24.155899,24.1213581,24.1845705,24.0784818,22.6473036,22.677537],[121.5904223,120.6789363,120.6476345,120.6017913,120.5376007,120.3081248,120.3203153],10,null,null,{"interactive":true,"className":"","stroke":true,"color":"blue","weight":5,"opacity":0.5,"fill":true,"fillColor":"blue","fillOpacity":0.2},null,null,[" 三軍總醫院內湖"," 中國醫藥大學附設醫院"," 中山醫學大學附設醫院"," 臺中榮民總醫院"," 彰化基督教醫院"," 高雄醫學大學附設醫院"," 高雄榮民總醫院"],{"interactive":false,"permanent":false,"direction":"auto","opacity":1,"offset":[0,0],"textsize":"10px","textOnly":false,"className":"","sticky":true},null,null]}],"setView":[[23.5,121],7,[]],"limits":{"lat":[22.5687142,25.1397589],"lng":[118.4160403,121.7715737]}},"evals":[],"jsHooks":[]}</script>
 </div>
 
 
