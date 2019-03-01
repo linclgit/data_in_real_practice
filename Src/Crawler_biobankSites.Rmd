@@ -105,18 +105,25 @@ row.names (geo_df) <- NULL
 ```{r}
 stations <- cbind (address_df, geo_df)
 library (knitr); library (kableExtra)
-kable (stations, format = "markdown")
+kable (stations, format = "html") %>% 
+  kable_styling() %>%
+  scroll_box(height = "300px")
 ```
 
-### (4) Plot the sites
+### (4) Plot the sites    
+ * mose over to see site names   
+    
 ```{r}
 stations$lat <- as.numeric(as.character(stations$lat))
 stations$long <- as.numeric(as.character(stations$long))
-tw <- map_data("world")[which(map_data("world")$region == "Taiwan"),]
-ggplot() + 
-  geom_polygon(data = tw, aes(x=long, y = lat, group = group), fill="grey") +   
-  theme_nothing(legend = TRUE)+
-  geom_point(data = stations, aes(x = long, y = lat, color = type))+
-  scale_color_manual(values = brewer.pal(5, "PuOr"))
+#tw <- map_data("world2")[which(map_data("world2")$region == "Taiwan"),]
+
+library(leaflet)
+leaflet() %>% addProviderTiles(providers$Stamen.TonerLite) %>% 
+  setView (lng = 121, lat = 23.5, zoom = 7) %>% 
+  addCircles(data = stations %>% filter (type=="cohort"), color = "red", 
+             lng = ~long, lat = ~lat, weight = 5, label = ~site) %>%
+  addCircles(data = stations %>% filter (type=="medical_center"), color = "blue",
+             lng = ~long, lat = ~lat, weight = 5, label = ~site)
 ```
 
