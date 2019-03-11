@@ -5,8 +5,13 @@ knit: (function(inputFile, encoding) {
 ---
 
 ```{r, echo = FALSE}
-knitr::opts_chunk$set (collapse=TRUE, comment="##", fig.path = "../images/", warning = FALSE)
+knitr::opts_chunk$set (comment="##", fig.path = "../images/", warning = FALSE)
 ```
+
+### Web scraping: data extraction and transformation
+ * Extract information from webpages
+ * Transform the information into tidy data table
+ * Visualize the data
 
 ```{r message=FALSE, warning=FALSE}
 library (rvest); library(httr)
@@ -15,32 +20,21 @@ library (maps); library(mapdata); library(ggmap)
 library (RColorBrewer)
 ```
 
-### Example webpage: this page shows the contact information of several work sites of the organization
+### 1-- Example webpage 1: this page shows the contact information of several work sites of the organization
+ * Extract the information using GET method
+ * Plot the location information onto a map
 ```{r}
 url = "https://www.twbiobank.org.tw/new_web/contact.php"
 res = GET (url) # use GET method to get the web response
 res
+
+# An overview of the web response
+str (res)  
+# res$content # information we want is usually in the content section
+              # but the content is usually binary coded
 ```
 
-### A quick view of the web response
-```{r}
-# str (res)  
-# names (res)
-# res$all_headers
-# res$request
-# res$request$headers  
-# res$cookies  
-# res$content
-```
-
-
-### Info we want is usually in "content"
-```{r}
-# content(res, as = "raw") # binary codes
-# content(res, as = "text") # default encoding method is utf-8
-```
-
-### 1-- Scrape the work site addresses
+### 2-- Extract the work site addresses we want from the content
 ```{r}
 address <- res %>% 
   content (as = "text") %>% 
@@ -49,7 +43,6 @@ address <- res %>%
   html_text %>% # turn the content into text
   as.data.frame # turn the table into data.frame
 
-#class (address)
 #str(address)
 head (address) # Overview of the scraped content
 ```
@@ -83,7 +76,7 @@ address_df$address[31] <- sub (".*)", "", address_df$address[31])
 head (address_df)
 ```
 
-### 2-- Scrape the coordinate info
+### 3-- Extract the coordinate of the sites from the content
 ```{r}
 geo <- res %>% 
   content (as = "text") %>% 
@@ -104,7 +97,7 @@ colnames (geo_df) <- c("lat", "long")
 row.names (geo_df) <- NULL
 ```
 
-### 3-- Combine the 2 tables
+### 4-- Combine the 2 tables: site addresses and coordinates
 ```{r}
 stations <- cbind (address_df, geo_df)
 library (knitr); library (kableExtra)
@@ -113,8 +106,8 @@ kable (stations, format = "html") %>%
   scroll_box(height = "300px")
 ```
 
-### 4-- Plot the sites    
- * mose over to see site names   
+### 5-- Plot the sites    
+ * mouse over to see site names   
     
 ```{r}
 stations$lat <- as.numeric(as.character(stations$lat))
@@ -128,5 +121,121 @@ leaflet() %>% addProviderTiles(providers$Stamen.TonerLite) %>%
              lng = ~long, lat = ~lat, weight = 5, label = ~site) %>%
   addCircles(data = stations %>% filter (type=="medical_center"), color = "blue",
              lng = ~long, lat = ~lat, weight = 5, label = ~site)
+```
+
+
+### 6-- Example webpage 2: the recruitment situation of each sites
+ * Extract information using POST method    
+ * Plot the recruitment outcome onto the map    
+     
+```{r}
+url <- "https://www.twbiobank.org.tw/TBB/COHORT/to/site_excel_preview"
+
+postData <- list (start_date = "",
+                  end_date = "2019-03-10")
+res <- POST (url, body = postData) 
+text <- res %>% 
+  content (as = "text")
+
+# View the first part of the scraped content, which is a string
+substr (text, 1, 300)
+```
+
+### Clean up the string a bit
+```{r}
+# Remove the square brackets ([{ }]) at the beginning and end of the string
+text2 <- gsub("^\\[\\{|\\}\\]$", "",text) 
+
+# Remove all quotation marks
+text3 <- gsub('\\"', "", text2)
+
+# Take a look at the cleanning so far
+substr (text3, 1, 300)
+```
+
+### Transform the string into a table
+```{r}
+# Split the string by the left curly brackets ({)
+split1 <- strsplit (text3, '},\\{')[[1]] %>% as.data.frame
+colnames (split1) <- "col"
+head (split1)
+
+# Further separate the content into columns
+split2 <- separate (split1, col, into = paste0("v", 1:10), sep =",")
+head (split2)
+
+# Remove the part before the semicolons
+split3 <- apply (split2, 2, function(x) gsub ("^.+:(.)", "\\1", x)) %>% 
+  as.data.frame
+head (split3)
+
+# Rename and reorder the columns
+names <- c ("駐站","尚未聯絡","聯絡中","聯絡總計","預約中","已收案","已結案","收案總計","補件","新增聯絡")
+colnames (split3) <- names
+baseline <- split3 %>% 
+  select (駐站, 新增聯絡, everything()) %>% 
+  mutate (recruitStatus = 0) # add this column so I can combine with the followup table later
+
+kable (baseline, "html") %>% 
+  kable_styling(bootstrap_options = "striped", font_size = 12)
+```
+
+
+### 7-- Repeat the extraction and transformation process for follow-up recruitment
+```{r}
+url <- "https://www.twbiobank.org.tw/TBB/COHORT/to/site_excel_preview_follow"
+postData <- list (start_date = "",
+                  end_date = "2019-03-10")
+res <- POST (url, body = postData) 
+text <- res %>% 
+  content (as = "text")
+
+# Remove the square brackets ([ ]) at the beginning and end of the string
+text2 <- gsub("^\\[\\{|\\}\\]$", "",text) 
+# Remove all quotation marks
+text3 <- gsub('\\"', "", text2)
+
+# Split the string by the left curly brackets ({)
+split1 <- strsplit (text3, '},\\{')[[1]] %>% as.data.frame
+colnames (split1) <- "col"
+
+# Further separate the content into columns
+split2 <- separate (split1, col, into = paste0 ("v", 1:10), sep = ",")
+
+# Remove the part before the semicolons
+split3 <- apply (split2, 2, function(x) gsub ("^.+:(.)", "\\1", x)) %>% 
+  as.data.frame
+
+# Rename and reorder the columns
+names <- c ("駐站","尚未聯絡","聯絡中","聯絡總計","預約中","已收案","已結案","收案總計","補件","新增聯絡")
+colnames(split3) <- names
+followup <- split3 %>% 
+  select (駐站, 新增聯絡, everything()) %>% 
+  mutate (recruitStatus = 1)
+
+kable (followup, "html") %>% 
+  kable_styling (bootstrap_options = "striped", font_size = 12)
+```
+
+
+### 8-- Combine the baseline and followup table and make a bar plot
+```{r fig.width=10}
+table <- rbind (baseline, followup) %>% 
+  mutate (收案總計 = as.numeric (as.character (收案總計)),
+              recruitStatus = as.character (recruitStatus), 
+              levels = 1:n()) 
+ggplot (table, aes (x = fct_reorder (駐站, desc(levels)), 
+                    y = as.numeric(收案總計), 
+                    fill = fct_relevel (recruitStatus, "1"))) +
+  geom_bar (stat = "identity") +
+  theme_minimal() +
+  theme(text = element_text (family="STHeiti")) +
+  labs (x = "", y = "收案總計(人)") +
+  scale_fill_brewer (name = "recruitment status", 
+                     labels = c("follow-up", "baseline"), 
+                     palette = "YlGnBu") +
+  coord_flip()
+
+
 ```
 
