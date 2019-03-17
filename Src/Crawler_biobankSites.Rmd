@@ -108,6 +108,7 @@ kable (stations, format = "html") %>%
 
 ### 5-- Plot the sites    
  * mouse over to see site names   
+ * Reference: [save leaflet map as png images](https://stackoverflow.com/a/34672309)
     
 ```{r}
 stations$lat <- as.numeric (as.character (stations$lat))
@@ -149,6 +150,8 @@ substr (text, 1, 300)
 ```
 
 ### Clean up the string a bit
+ * Reference: [remove brackets from strings](https://stackoverflow.com/a/17528237)    
+ 
 ```{r}
 # Remove the square brackets ([{ }]) at the beginning and end of the string
 text2 <- gsub("^\\[\\{|\\}\\]$", "",text) 
