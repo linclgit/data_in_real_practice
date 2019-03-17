@@ -220,7 +220,7 @@ library (RColorBrewer)</code></pre>
 res = GET (url) # use GET method to get the web response
 res</code></pre>
 <pre><code>## Response [https://www.twbiobank.org.tw/new_web/contact.php]
-##   Date: 2019-03-17 14:05
+##   Date: 2019-03-17 14:23
 ##   Status: 200
 ##   Content-Type: text/html; charset=UTF-8
 ##   Size: 30 kB
@@ -241,7 +241,7 @@ str (res)  </code></pre>
 ##  $ url        : chr &quot;https://www.twbiobank.org.tw/new_web/contact.php&quot;
 ##  $ status_code: int 200
 ##  $ headers    :List of 6
-##   ..$ date             : chr &quot;Sun, 17 Mar 2019 14:05:05 GMT&quot;
+##   ..$ date             : chr &quot;Sun, 17 Mar 2019 14:23:58 GMT&quot;
 ##   ..$ server           : chr &quot;Apache/2.2.15 (CentOS)&quot;
 ##   ..$ x-powered-by     : chr &quot;PHP/5.3.3&quot;
 ##   ..$ connection       : chr &quot;close&quot;
@@ -253,7 +253,7 @@ str (res)  </code></pre>
 ##   .. ..$ status : int 200
 ##   .. ..$ version: chr &quot;HTTP/1.1&quot;
 ##   .. ..$ headers:List of 6
-##   .. .. ..$ date             : chr &quot;Sun, 17 Mar 2019 14:05:05 GMT&quot;
+##   .. .. ..$ date             : chr &quot;Sun, 17 Mar 2019 14:23:58 GMT&quot;
 ##   .. .. ..$ server           : chr &quot;Apache/2.2.15 (CentOS)&quot;
 ##   .. .. ..$ x-powered-by     : chr &quot;PHP/5.3.3&quot;
 ##   .. .. ..$ connection       : chr &quot;close&quot;
@@ -269,8 +269,8 @@ str (res)  </code></pre>
 ##   ..$ name      : logi(0) 
 ##   ..$ value     : logi(0) 
 ##  $ content    : raw [1:29955] 3c 21 44 4f ...
-##  $ date       : POSIXct[1:1], format: &quot;2019-03-17 14:05:05&quot;
-##  $ times      : Named num [1:6] 0 0.00119 0.04215 0.16529 0.19759 ...
+##  $ date       : POSIXct[1:1], format: &quot;2019-03-17 14:23:58&quot;
+##  $ times      : Named num [1:6] 0 0.00166 0.02645 0.16365 0.20227 ...
 ##   ..- attr(*, &quot;names&quot;)= chr [1:6] &quot;redirect&quot; &quot;namelookup&quot; &quot;connect&quot; &quot;pretransfer&quot; ...
 ##  $ request    :List of 7
 ##   ..$ method    : chr &quot;GET&quot;
@@ -1302,16 +1302,20 @@ stations$long &lt;- as.numeric (as.character (stations$long))
 #tw &lt;- map_data(&quot;world2&quot;)[which(map_data(&quot;world2&quot;)$region == &quot;Taiwan&quot;),]
 
 library(leaflet)
+(m &lt;-
 leaflet() %&gt;% addProviderTiles(providers$Stamen.TonerLite) %&gt;% 
   setView (lng = 121, lat = 23.5, zoom = 7) %&gt;% 
   addCircles(data = stations %&gt;% filter (type==&quot;cohort&quot;), 
              color = brewer.pal(3, &quot;YlGnBu&quot;)[3], weight = 5, opacity = 1,
              lng = ~long, lat = ~lat, label = ~site) %&gt;%
   addCircles(data = stations %&gt;% filter (type==&quot;medical_center&quot;), 
-             color = brewer.pal(3, &quot;Reds&quot;)[3], weight = 5, 
-             lng = ~long, lat = ~lat, label = ~site) </code></pre>
-<div id="htmlwidget-72e308c482a6da5f232a" style="width:672px;height:480px;" class="leaflet html-widget"></div>
-<script type="application/json" data-for="htmlwidget-72e308c482a6da5f232a">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"calls":[{"method":"addProviderTiles","args":["Stamen.TonerLite",null,null,{"errorTileUrl":"","noWrap":false,"detectRetina":false}]},{"method":"addCircles","args":[[25.0165081,25.0382005,25.0377574,25.1397589,24.9772568,24.8165889,24.575502,24.1823619,24.2425977,24.1561147,24.077888,23.9645876,23.9704965,23.5304815,23.4810377,23.4599872,23.3089232,23.288519,22.967718,22.6269744,22.5687142,22.626625,22.760019,22.6733243,24.6718382,23.9878102,24.0249411,22.7571694,23.5532372,24.4441129,23.7608533],[121.5298502,121.544551,121.4319429,121.4599221,121.2682486,120.9773071,120.84138,120.6171293,120.7255177,120.6800312,120.411342,120.5644942,120.9463243,120.345948,120.426136,120.2250237,120.3133117,120.325344,120.2264605,120.2950576,120.3604636,120.3235881,120.3674044,120.4955525,121.7715737,121.6263725,121.6042854,121.1500477,119.5853407,118.4160403,120.6117475],10,null,null,{"interactive":true,"className":"","stroke":true,"color":"#2C7FB8","weight":5,"opacity":1,"fill":true,"fillColor":"#2C7FB8","fillOpacity":0.2},null,null,[" 三軍總醫院汀州院區"," 宏恩醫院"," 輔大診所"," 淡水馬偕醫院"," 衛生福利部桃園醫院"," 台大醫院新竹分院"," 衛生福利部苗栗醫院"," 中港澄清醫院"," 衛生福利部豐原醫院"," 中國醫藥大學附設醫院"," 彰濱秀傳醫院"," 彰化員林基督教醫院"," 埔里基督教醫院"," 大林慈濟醫院"," 衛福部嘉義醫院"," 衛生福利部朴子醫院"," 衛生福利部新營醫院"," 柳營奇美醫院"," 臺南市立醫院"," 高雄市立大同醫院"," 高雄市立小港醫院"," 高雄市立民生醫院"," 高雄義大醫院"," 衛生福利部屏東醫院"," 羅東聖母醫院"," 花蓮門諾醫院"," 國軍花蓮醫院"," 衛生福利部臺東醫院"," 三軍總醫院澎湖分院"," 金門縣衛生局"," 雲林林內衛生所"],{"interactive":false,"permanent":false,"direction":"auto","opacity":1,"offset":[0,0],"textsize":"10px","textOnly":false,"className":"","sticky":true},null,null]},{"method":"addCircles","args":[[25.0717589,24.155899,24.1213581,24.1845705,24.0784818,22.6473036,22.677537],[121.5904223,120.6789363,120.6476345,120.6017913,120.5376007,120.3081248,120.3203153],10,null,null,{"interactive":true,"className":"","stroke":true,"color":"#DE2D26","weight":5,"opacity":0.5,"fill":true,"fillColor":"#DE2D26","fillOpacity":0.2},null,null,[" 三軍總醫院內湖"," 中國醫藥大學附設醫院"," 中山醫學大學附設醫院"," 臺中榮民總醫院"," 彰化基督教醫院"," 高雄醫學大學附設醫院"," 高雄榮民總醫院"],{"interactive":false,"permanent":false,"direction":"auto","opacity":1,"offset":[0,0],"textsize":"10px","textOnly":false,"className":"","sticky":true},null,null]}],"setView":[[23.5,121],7,[]],"limits":{"lat":[22.5687142,25.1397589],"lng":[118.4160403,121.7715737]}},"evals":[],"jsHooks":[]}</script>
+             color = brewer.pal(3, &quot;Reds&quot;)[3], weight = 5, opacity = 1,
+             lng = ~long, lat = ~lat, label = ~site) 
+)</code></pre>
+<div id="htmlwidget-8ee1640caab0792722ba" style="width:672px;height:480px;" class="leaflet html-widget"></div>
+<script type="application/json" data-for="htmlwidget-8ee1640caab0792722ba">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"calls":[{"method":"addProviderTiles","args":["Stamen.TonerLite",null,null,{"errorTileUrl":"","noWrap":false,"detectRetina":false}]},{"method":"addCircles","args":[[25.0165081,25.0382005,25.0377574,25.1397589,24.9772568,24.8165889,24.575502,24.1823619,24.2425977,24.1561147,24.077888,23.9645876,23.9704965,23.5304815,23.4810377,23.4599872,23.3089232,23.288519,22.967718,22.6269744,22.5687142,22.626625,22.760019,22.6733243,24.6718382,23.9878102,24.0249411,22.7571694,23.5532372,24.4441129,23.7608533],[121.5298502,121.544551,121.4319429,121.4599221,121.2682486,120.9773071,120.84138,120.6171293,120.7255177,120.6800312,120.411342,120.5644942,120.9463243,120.345948,120.426136,120.2250237,120.3133117,120.325344,120.2264605,120.2950576,120.3604636,120.3235881,120.3674044,120.4955525,121.7715737,121.6263725,121.6042854,121.1500477,119.5853407,118.4160403,120.6117475],10,null,null,{"interactive":true,"className":"","stroke":true,"color":"#2C7FB8","weight":5,"opacity":1,"fill":true,"fillColor":"#2C7FB8","fillOpacity":0.2},null,null,[" 三軍總醫院汀州院區"," 宏恩醫院"," 輔大診所"," 淡水馬偕醫院"," 衛生福利部桃園醫院"," 台大醫院新竹分院"," 衛生福利部苗栗醫院"," 中港澄清醫院"," 衛生福利部豐原醫院"," 中國醫藥大學附設醫院"," 彰濱秀傳醫院"," 彰化員林基督教醫院"," 埔里基督教醫院"," 大林慈濟醫院"," 衛福部嘉義醫院"," 衛生福利部朴子醫院"," 衛生福利部新營醫院"," 柳營奇美醫院"," 臺南市立醫院"," 高雄市立大同醫院"," 高雄市立小港醫院"," 高雄市立民生醫院"," 高雄義大醫院"," 衛生福利部屏東醫院"," 羅東聖母醫院"," 花蓮門諾醫院"," 國軍花蓮醫院"," 衛生福利部臺東醫院"," 三軍總醫院澎湖分院"," 金門縣衛生局"," 雲林林內衛生所"],{"interactive":false,"permanent":false,"direction":"auto","opacity":1,"offset":[0,0],"textsize":"10px","textOnly":false,"className":"","sticky":true},null,null]},{"method":"addCircles","args":[[25.0717589,24.155899,24.1213581,24.1845705,24.0784818,22.6473036,22.677537],[121.5904223,120.6789363,120.6476345,120.6017913,120.5376007,120.3081248,120.3203153],10,null,null,{"interactive":true,"className":"","stroke":true,"color":"#DE2D26","weight":5,"opacity":1,"fill":true,"fillColor":"#DE2D26","fillOpacity":0.2},null,null,[" 三軍總醫院內湖"," 中國醫藥大學附設醫院"," 中山醫學大學附設醫院"," 臺中榮民總醫院"," 彰化基督教醫院"," 高雄醫學大學附設醫院"," 高雄榮民總醫院"],{"interactive":false,"permanent":false,"direction":"auto","opacity":1,"offset":[0,0],"textsize":"10px","textOnly":false,"className":"","sticky":true},null,null]}],"setView":[[23.5,121],7,[]],"limits":{"lat":[22.5687142,25.1397589],"lng":[118.4160403,121.7715737]}},"evals":[],"jsHooks":[]}</script>
+<pre class="r"><code>library(mapview)
+mapshot(m, file = &quot;../images/worksite_loc.png&quot;)</code></pre>
 </div>
 <div id="example-webpage-2-the-recruitment-situation-of-each-sites" class="section level3">
 <h3>6– Example webpage 2: the recruitment situation of each sites</h3>
@@ -3959,8 +3963,8 @@ leaflet() %&gt;%
              opacity = 1, fillOpacity = 0.3, weight = 3,
              lng = ~long, lat = ~lat, label = ~駐站,
              radius = ~2*as.numeric (as.character (收案總計))) #%&gt;%</code></pre>
-<div id="htmlwidget-9f4ab5e976d9efaa3f25" style="width:672px;height:960px;" class="leaflet html-widget"></div>
-<script type="application/json" data-for="htmlwidget-9f4ab5e976d9efaa3f25">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"calls":[{"method":"addProviderTiles","args":["Stamen.TonerLite",null,null,{"errorTileUrl":"","noWrap":false,"detectRetina":false}]},{"method":"addCircles","args":[[25.0382005,25.041664,25.0165081,25.1397589,24.976294,24.992699,25.0377574,24.9772568,24.8165889,24.575502,24.1561147,24.2425977,24.1823619,23.9506679,24.077888,23.959309,23.9704965,23.5304815,23.4599872,23.4810377,23.4999232,23.3089232,22.967718,23.288519,22.626625,22.760019,22.6269744,22.5687142,22.6733243,24.6718382,23.9878102,22.7571694,23.5532372,24.4441129],[121.544551,121.503566,121.5298502,121.4599221,121.5357399,121.493526,121.4319429,121.2682486,120.9773071,120.84138,120.6800312,120.7255177,120.6171293,120.5271781,120.411342,120.566371,120.9463243,120.345948,120.2250237,120.426136,120.4510776,120.3133117,120.2264605,120.325344,120.3235881,120.3674044,120.2950576,120.3604636,120.4955525,121.7715737,121.6263725,121.1500477,119.5853407,118.4160403],[1048,3552,14116,114,1244,6316,4398,11924,13878,9784,7244,11290,10548,38,3298,8082,1664,2344,2616,1356,7416,1886,12116,5042,8770,5792,15200,2340,11614,9632,7054,6150,1400,36],null,null,{"interactive":true,"className":"","stroke":true,"color":"#2C7FB8","weight":3,"opacity":1,"fill":true,"fillColor":"#2C7FB8","fillOpacity":0.3},null,null,["宏恩醫療財團法人宏恩綜合醫院","台大醫院北護分院","三軍總醫院汀州院區","淡水馬偕醫院","新店耕莘醫院","衛生福利部雙和醫院","輔仁大學診所","署立桃園醫院","臺大醫院新竹分院","衛生福利部苗栗醫院","中國醫藥大學附設醫院","衛生福利部豐原醫院","中港澄清醫院","衛生福利部彰化醫院","彰濱秀傳醫院","員生醫院","埔基醫療財團法人埔里基督教醫院","慈濟大林醫院","署立朴子醫院","衛生福利部嘉義醫院","嘉義基督教醫院","署立新營醫院","台南市立醫院","柳營奇美醫院","高雄市立民生醫院","義大醫療財團法人義大醫院","高雄市立大同醫院","高雄市立小港醫院","署立屏東醫院","羅東聖母醫院","基督教門諾醫院","署立台東醫院","三軍總醫院澎湖院區","金門縣衛生局"],{"interactive":false,"permanent":false,"direction":"auto","opacity":1,"offset":[0,0],"textsize":"10px","textOnly":false,"className":"","sticky":true},null,null]}],"setView":[[23.5,121],8,[]],"limits":{"lat":[22.5687142,25.1397589],"lng":[118.4160403,121.7715737]}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-330a6b0e3908175de2a0" style="width:672px;height:960px;" class="leaflet html-widget"></div>
+<script type="application/json" data-for="htmlwidget-330a6b0e3908175de2a0">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"calls":[{"method":"addProviderTiles","args":["Stamen.TonerLite",null,null,{"errorTileUrl":"","noWrap":false,"detectRetina":false}]},{"method":"addCircles","args":[[25.0382005,25.041664,25.0165081,25.1397589,24.976294,24.992699,25.0377574,24.9772568,24.8165889,24.575502,24.1561147,24.2425977,24.1823619,23.9506679,24.077888,23.959309,23.9704965,23.5304815,23.4599872,23.4810377,23.4999232,23.3089232,22.967718,23.288519,22.626625,22.760019,22.6269744,22.5687142,22.6733243,24.6718382,23.9878102,22.7571694,23.5532372,24.4441129],[121.544551,121.503566,121.5298502,121.4599221,121.5357399,121.493526,121.4319429,121.2682486,120.9773071,120.84138,120.6800312,120.7255177,120.6171293,120.5271781,120.411342,120.566371,120.9463243,120.345948,120.2250237,120.426136,120.4510776,120.3133117,120.2264605,120.325344,120.3235881,120.3674044,120.2950576,120.3604636,120.4955525,121.7715737,121.6263725,121.1500477,119.5853407,118.4160403],[1048,3552,14116,114,1244,6316,4398,11924,13878,9784,7244,11290,10548,38,3298,8082,1664,2344,2616,1356,7416,1886,12116,5042,8770,5792,15200,2340,11614,9632,7054,6150,1400,36],null,null,{"interactive":true,"className":"","stroke":true,"color":"#2C7FB8","weight":3,"opacity":1,"fill":true,"fillColor":"#2C7FB8","fillOpacity":0.3},null,null,["宏恩醫療財團法人宏恩綜合醫院","台大醫院北護分院","三軍總醫院汀州院區","淡水馬偕醫院","新店耕莘醫院","衛生福利部雙和醫院","輔仁大學診所","署立桃園醫院","臺大醫院新竹分院","衛生福利部苗栗醫院","中國醫藥大學附設醫院","衛生福利部豐原醫院","中港澄清醫院","衛生福利部彰化醫院","彰濱秀傳醫院","員生醫院","埔基醫療財團法人埔里基督教醫院","慈濟大林醫院","署立朴子醫院","衛生福利部嘉義醫院","嘉義基督教醫院","署立新營醫院","台南市立醫院","柳營奇美醫院","高雄市立民生醫院","義大醫療財團法人義大醫院","高雄市立大同醫院","高雄市立小港醫院","署立屏東醫院","羅東聖母醫院","基督教門諾醫院","署立台東醫院","三軍總醫院澎湖院區","金門縣衛生局"],{"interactive":false,"permanent":false,"direction":"auto","opacity":1,"offset":[0,0],"textsize":"10px","textOnly":false,"className":"","sticky":true},null,null]}],"setView":[[23.5,121],8,[]],"limits":{"lat":[22.5687142,25.1397589],"lng":[118.4160403,121.7715737]}},"evals":[],"jsHooks":[]}</script>
 <pre class="r"><code>  # addLegend (data = baseline,
   #   pal = pal, values = ~as.numeric (as.character (baseline$收案總計)),
   #   title = &quot;baseline recruitment (people)&quot;,

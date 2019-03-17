@@ -115,14 +115,19 @@ stations$long <- as.numeric (as.character (stations$long))
 #tw <- map_data("world2")[which(map_data("world2")$region == "Taiwan"),]
 
 library(leaflet)
+(m <-
 leaflet() %>% addProviderTiles(providers$Stamen.TonerLite) %>% 
   setView (lng = 121, lat = 23.5, zoom = 7) %>% 
   addCircles(data = stations %>% filter (type=="cohort"), 
              color = brewer.pal(3, "YlGnBu")[3], weight = 5, opacity = 1,
              lng = ~long, lat = ~lat, label = ~site) %>%
   addCircles(data = stations %>% filter (type=="medical_center"), 
-             color = brewer.pal(3, "Reds")[3], weight = 5, 
+             color = brewer.pal(3, "Reds")[3], weight = 5, opacity = 1,
              lng = ~long, lat = ~lat, label = ~site) 
+)
+
+library(mapview)
+mapshot(m, file = "../images/worksite_loc.png")
 ```
 
 
