@@ -1,6 +1,6 @@
 ## Work update    
 2019.02 [Practice to scrape information from a webpage and MAP visualization](https://linclgit.github.io/data_in_real_practice/output/Crawler_biobankSites.html) (work in progress!!)    
-<img src="https://github.com/linclgit/data_in_real_practice/blob/master/images/snapshot.png" width="50%">    
+<img src="https://linclgit.github.io/data_in_real_practice/images/worksite_loc.png" width="50%">    
     
 |    
 |    
