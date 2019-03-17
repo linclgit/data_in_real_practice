@@ -15,7 +15,7 @@ knitr::opts_chunk$set (comment="##", fig.path = "../images/", warning = FALSE)
 
 ```{r message=FALSE, warning=FALSE}
 library (rvest); library(httr)
-library (tidyverse); library(ggplot2)
+library (tidyverse); library(ggplot2); library (lubridate)
 library (maps); library(mapdata); library(ggmap)
 library (RColorBrewer)
 ```
@@ -99,7 +99,7 @@ row.names (geo_df) <- NULL
 
 ### 4-- Combine the 2 tables: site addresses and coordinates
 ```{r}
-stations <- cbind (address_df, geo_df)
+stations <- cbind (address_df, geo_df) 
 library (knitr); library (kableExtra)
 kable (stations, format = "html") %>% 
   kable_styling(bootstrap_options = "striped", font_size = 12) %>%
@@ -110,17 +110,19 @@ kable (stations, format = "html") %>%
  * mouse over to see site names   
     
 ```{r}
-stations$lat <- as.numeric(as.character(stations$lat))
-stations$long <- as.numeric(as.character(stations$long))
+stations$lat <- as.numeric (as.character (stations$lat))
+stations$long <- as.numeric (as.character (stations$long))
 #tw <- map_data("world2")[which(map_data("world2")$region == "Taiwan"),]
 
 library(leaflet)
 leaflet() %>% addProviderTiles(providers$Stamen.TonerLite) %>% 
   setView (lng = 121, lat = 23.5, zoom = 7) %>% 
-  addCircles(data = stations %>% filter (type=="cohort"), color = "red", 
-             lng = ~long, lat = ~lat, weight = 5, label = ~site) %>%
-  addCircles(data = stations %>% filter (type=="medical_center"), color = "blue",
-             lng = ~long, lat = ~lat, weight = 5, label = ~site)
+  addCircles(data = stations %>% filter (type=="cohort"), 
+             color = brewer.pal(3, "YlGnBu")[3], weight = 5, opacity = 1,
+             lng = ~long, lat = ~lat, label = ~site) %>%
+  addCircles(data = stations %>% filter (type=="medical_center"), 
+             color = brewer.pal(3, "Reds")[3], weight = 5, 
+             lng = ~long, lat = ~lat, label = ~site) 
 ```
 
 
@@ -130,10 +132,10 @@ leaflet() %>% addProviderTiles(providers$Stamen.TonerLite) %>%
      
 ```{r}
 url <- "https://www.twbiobank.org.tw/TBB/COHORT/to/site_excel_preview"
-
+today <- today()
 postData <- list (start_date = "",
-                  end_date = "2019-03-10")
-res <- POST (url, body = postData) 
+                  end_date = today)
+res <- POST (url, body = postData, encode = "form") 
 text <- res %>% 
   content (as = "text")
 
@@ -166,7 +168,7 @@ head (split2)
 
 # Remove the part before the semicolons
 split3 <- apply (split2, 2, function(x) gsub ("^.+:(.)", "\\1", x)) %>% 
-  as.data.frame
+  as.data.frame (stringsAsFactors = FALSE)
 head (split3)
 
 # Rename and reorder the columns
@@ -185,8 +187,8 @@ kable (baseline, "html") %>%
 ```{r}
 url <- "https://www.twbiobank.org.tw/TBB/COHORT/to/site_excel_preview_follow"
 postData <- list (start_date = "",
-                  end_date = "2019-03-10")
-res <- POST (url, body = postData) 
+                  end_date = today)
+res <- POST (url, body = postData, encode = "form") 
 text <- res %>% 
   content (as = "text")
 
@@ -204,7 +206,7 @@ split2 <- separate (split1, col, into = paste0 ("v", 1:10), sep = ",")
 
 # Remove the part before the semicolons
 split3 <- apply (split2, 2, function(x) gsub ("^.+:(.)", "\\1", x)) %>% 
-  as.data.frame
+  as.data.frame (stringsAsFactors = FALSE)
 
 # Rename and reorder the columns
 names <- c ("駐站","尚未聯絡","聯絡中","聯絡總計","預約中","已收案","已結案","收案總計","補件","新增聯絡")
@@ -235,7 +237,62 @@ ggplot (table, aes (x = fct_reorder (駐站, desc(levels)),
                      labels = c("follow-up", "baseline"), 
                      palette = "YlGnBu") +
   coord_flip()
+```
 
+### 9-- show the density on the map
+```{r fig.height=10}
+df <-  cbind (as.character(baseline$駐站),  stations$site) %>% 
+  as.data.frame (stringsAsFactors = FALSE)
+names (df) <- c ("names_tbb", "names_web")
+df[35:38, 1] <- NA
+df[32:38, 2] <- NA
 
+st <- c("宏恩", "北護", "汀州", "馬偕", "耕莘", 
+        "雙和", "輔", "桃園", "新竹", "苗栗", 
+        "醫藥", "豐原", "澄清", "化醫", "秀傳", 
+        "員生", "埔里", "大林", "朴子", "義醫", 
+        "義基", "新營", "南市", "柳營", "民生", 
+        "義大", "大同", "小港", "屏東", "羅東", 
+        "門諾", "臺東", "澎湖", "金門")
+
+for (i in 1:length(df$names_tbb)){
+  ifelse (grepl(st[i], df$names_web), 
+  baseline$names_web[i] <- df$names_web[grepl(st[i], df$names_web)], NA )
+}
+
+baseline$long <- stations$long [match (baseline$names_web, stations$site)]
+baseline$lat <- stations$lat [match (baseline$names_web, stations$site)]
+baseline [c(2,5,6,14,16,21), "long"] <- c (121.50356599999998, 
+                                           121.53573989999995,
+                                           121.49352599999997,
+                                           120.52717810000001, 
+                                           120.566371,
+                                           120.45107759999996)
+baseline [c(2,5,6,14,16,21), "lat"] <- c (25.041664,
+                                          24.976294,
+                                          24.992699,
+                                          23.9506679,
+                                          23.959309,
+                                          23.4999232)
+
+pal <- colorNumeric (
+  palette = "Blues",
+  domain = as.numeric (as.character(baseline$收案總計)))
+leaflet() %>% 
+  addProviderTiles(providers$Stamen.TonerLite) %>% 
+  setView (lng = 121, lat = 23.5, zoom = 8) %>%
+  addCircles (data = baseline,
+             # color = ~pal (as.numeric (as.character (收案總計))),
+             color = brewer.pal(3, "YlGnBu")[3],
+             opacity = 1, fillOpacity = 0.3, weight = 3,
+             lng = ~long, lat = ~lat, label = ~駐站,
+             radius = ~2*as.numeric (as.character (收案總計))) #%>%
+  
+  # addLegend (data = baseline,
+  #   pal = pal, values = ~as.numeric (as.character (baseline$收案總計)),
+  #   title = "baseline recruitment (people)",
+  #   #labFormat = labelFormat(prefix = "$"),
+  #   position = "bottomright",
+  #   opacity = 1)
 ```
 
