@@ -1,5 +1,10 @@
 ---
-output: html_document
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: sandstone
+    hightlight: haddock
 knit: (function(inputFile, encoding) {
   rmarkdown::render(inputFile, encoding = encoding, output_dir = "../output/") })
 ---
@@ -149,7 +154,7 @@ text <- res %>%
 substr (text, 1, 300)
 ```
 
-### Clean up the string a bit
+#### Clean up the string a bit
  * Reference: [remove brackets from strings](https://stackoverflow.com/a/17528237)    
  
 ```{r}
@@ -163,7 +168,7 @@ text3 <- gsub('\\"', "", text2)
 substr (text3, 1, 300)
 ```
 
-### Transform the string into a table
+#### Transform the string into a table
 ```{r}
 # Split the string by the left curly brackets ({)
 split1 <- strsplit (text3, '},\\{')[[1]] %>% as.data.frame
