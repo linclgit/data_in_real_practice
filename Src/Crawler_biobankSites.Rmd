@@ -3,8 +3,10 @@ output:
   html_document:
     toc: true
     toc_float: true
+    toc_depth: 3
     theme: sandstone
     hightlight: haddock
+    code_folding: hide
 knit: (function(inputFile, encoding) {
   rmarkdown::render(inputFile, encoding = encoding, output_dir = "../output/") })
 ---
@@ -13,21 +15,24 @@ knit: (function(inputFile, encoding) {
 knitr::opts_chunk$set (comment="##", fig.path = "../images/", warning = FALSE)
 ```
 
-### Web scraping: data extraction and transformation
+## Web scraping: data extraction and transformation
  * Extract information from webpages
  * Transform the information into tidy data table
- * Visualize the data
-
+ * Visualize the data    
+    
 ```{r message=FALSE, warning=FALSE}
-library (rvest); library(httr)
-library (tidyverse); library(ggplot2); library (lubridate)
-library (maps); library(mapdata); library(ggmap)
+library (rvest); library (httr)
+library (tidyverse); library (ggplot2); library (lubridate)
+library (maps); library (mapdata); library (ggmap)
 library (RColorBrewer)
 ```
 
-### 1-- Example webpage 1: this page shows the contact information of several work sites of the organization
- * Extract the information using GET method
- * Plot the location information onto a map
+### 1-- Example webpage 1:   
+this page shows the contact information of several work sites of the organization    
+
+ * Extract the information using GET method    
+ * Plot the location information onto a map   
+     
 ```{r}
 url = "https://www.twbiobank.org.tw/new_web/contact.php"
 res = GET (url) # use GET method to get the web response
@@ -52,7 +57,7 @@ address <- res %>%
 head (address) # Overview of the scraped content
 ```
 
-### Some data cleaning:    
+#### Some data cleaning:    
 divide the location string into the following columns, city, site, address, and building    
     
 ```{r}
@@ -90,7 +95,7 @@ geo <- res %>%
   html_attrs 
 ```
 
-### Some data cleaning:    
+#### Some data cleaning:    
 turn the list into data frame and rename columns    
     
 ```{r}
@@ -111,7 +116,7 @@ kable (stations, format = "html") %>%
   scroll_box(height = "300px")
 ```
 
-### 5-- Plot the sites    
+### 5-- Plot the sites     
  * mouse over to see site names   
  * Reference: [save leaflet map as png images](https://stackoverflow.com/a/34672309)
     
@@ -137,7 +142,9 @@ mapshot(m, file = "../images/worksite_loc.png")
 ```
 
 
-### 6-- Example webpage 2: the recruitment situation of each sites
+### 6-- Example webpage 2:    
+the recruitment situation of each sites     
+
  * Extract information using POST method    
  * Plot the recruitment outcome onto the map    
      
@@ -156,7 +163,7 @@ substr (text, 1, 300)
 
 #### Clean up the string a bit
  * Reference: [remove brackets from strings](https://stackoverflow.com/a/17528237)    
- 
+    
 ```{r}
 # Remove the square brackets ([{ }]) at the beginning and end of the string
 text2 <- gsub("^\\[\\{|\\}\\]$", "",text) 
@@ -191,12 +198,16 @@ baseline <- split3 %>%
   select (駐站, 新增聯絡, everything()) %>% 
   mutate (recruitStatus = 0) # add this column so I can combine with the followup table later
 
-kable (baseline, "html") %>% 
-  kable_styling(bootstrap_options = "striped", font_size = 12)
 ```
 
 
-### 7-- Repeat the extraction and transformation process for follow-up recruitment
+### 7-- Repeat the extraction and transformation process for follow-up recruitment{.tabset}
+#### Baseline
+```{r}
+kable (baseline, "html") %>% 
+  kable_styling(bootstrap_options = "striped", font_size = 12)
+```
+#### Follow-up
 ```{r}
 url <- "https://www.twbiobank.org.tw/TBB/COHORT/to/site_excel_preview_follow"
 postData <- list (start_date = "",
@@ -234,7 +245,7 @@ kable (followup, "html") %>%
 
 
 ### 8-- Combine the baseline and followup table and make a bar plot
-```{r fig.width=10}
+```{r fig.width=10, fig.height=6}
 table <- rbind (baseline, followup) %>% 
   mutate (收案總計 = as.numeric (as.character (收案總計)),
               recruitStatus = as.character (recruitStatus), 
@@ -244,7 +255,8 @@ ggplot (table, aes (x = fct_reorder (駐站, desc(levels)),
                     fill = fct_relevel (recruitStatus, "1"))) +
   geom_bar (stat = "identity") +
   theme_minimal() +
-  theme(text = element_text (family="STHeiti")) +
+  theme(text = element_text (family="STHeiti"),
+        legend.position = "top", legend.direction = "horizontal") +
   labs (x = "", y = "收案總計(人)") +
   scale_fill_brewer (name = "recruitment status", 
                      labels = c("follow-up", "baseline"), 
